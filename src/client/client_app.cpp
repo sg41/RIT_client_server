@@ -22,8 +22,12 @@ int main(int argc, char** argv) {
     std::cout << "> ";
     std::getline(std::cin, message);
 
-    if (message == "exit") {
+    if (message == "exit" || std::cin.eof()) {
       break;
+    }
+
+    if (message == "") {
+      continue;
     }
 
     if (!client.sendMessage(message)) {

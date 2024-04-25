@@ -1,6 +1,8 @@
 #ifndef SERVER_CLIENT_HANDLER_H
 #define SERVER_CLIENT_HANDLER_H
 #include <unordered_map>
+
+#include "parser.h"
 class ClientHandler {
  private:
   int client_socket;
@@ -57,11 +59,14 @@ class ClientHandler {
   }
   std::string processMessage(const std::string& message) {
     std::string response;
-    // TODO: Implement message processing logic here
-    if (message == "communicate") {
-    }
+    Parser parser(message);
 
-    response = countLetters(message);
+    if (parser.hasCommand()) {
+      // TODO: Implement message processing logic here
+      response = "Command: " + parser.getCommand() + " not implemented";
+    } else {
+      response = countLetters(message);
+    }
 
     return response;
   }
