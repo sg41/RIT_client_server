@@ -1,3 +1,5 @@
+#ifndef SERVER_SERVER_H
+#define SERVER_SERVER_H
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -81,3 +83,4 @@ class Server {
     }
   }
 };
+#endif  // SERVER_SERVER_H

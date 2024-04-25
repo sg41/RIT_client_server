@@ -19,6 +19,7 @@ debug: CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=Debug
 debug: cmake-configure
 	cd $(BUILD_DIR) && make
 
+# Цель для сборки проекта с отладочным режимом и запуска
 debug_run: debug
 	build/server 12345&
 	build/client 127.0.0.1 12345

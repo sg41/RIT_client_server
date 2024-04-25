@@ -1,4 +1,5 @@
-
+#ifndef SERVER_CLIENT_HANDLER_H
+#define SERVER_CLIENT_HANDLER_H
 #include <unordered_map>
 class ClientHandler {
  private:
@@ -17,7 +18,6 @@ class ClientHandler {
       // Process message and send response
       std::cout << "Received from client: " << message << std::endl;
       std::string response = processMessage(message);
-      //   sendMessage("Response from server");
       sendMessage(response);
     }
 
@@ -45,10 +45,7 @@ class ClientHandler {
       letter_counts[c]++;
     }
     std::string response = "Message |" + message + "\n";
-    // for (auto& pair : letter_counts) {
-    //   response += std::string(1, pair.first) + "       |" +
-    //               std::to_string(pair.second) + "\n";
-    // }
+
     for (auto letter : message) {
       if (letter_counts[letter] != 0) {
         response += std::string(1, letter) + "       |" +
@@ -59,10 +56,14 @@ class ClientHandler {
     return response;
   }
   std::string processMessage(const std::string& message) {
+    std::string response;
     // TODO: Implement message processing logic here
-    // if(message == "communicate")
-    auto response = countLetters(message);
+    if (message == "communicate") {
+    }
+
+    response = countLetters(message);
 
     return response;
   }
 };
+#endif  // SERVER_CLIENT_HANDLER_H
