@@ -4,6 +4,8 @@ add_executable(server server/server_app.cpp)
 
 # Указываем выходную директорию для исполняемых файлов
 set_target_properties(client server PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+target_compile_features(client INTERFACE cxx_std_17)
+target_compile_features(server INTERFACE cxx_std_17)
 
 # Указываем заголовочные файлы, если они есть
 include_directories(. client server) 
