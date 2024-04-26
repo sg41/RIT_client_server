@@ -80,16 +80,19 @@ void Server::removeClient(const std::string& client_id) {
   }
 }
 
-void Server::routeMessage(const std::string& sender_id,
+bool Server::routeMessage(const std::string& sender_id,
                           const std::string& receiver_id,
                           const std::string& message) {
+  bool message_sent = false;
   auto it = clients.find(receiver_id);
   if (it != clients.end()) {
     it->second->sendMessageToClient(sender_id + ": " + message);
+    message_sent = true;
   } else {
     // Handle the case where the recipient is not found
     std::cout << "Client with ID " << receiver_id << " not found." << std::endl;
   }
+  return message_sent;
 }
 
 Server::~Server() {

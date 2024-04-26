@@ -30,7 +30,8 @@ void ClientHandler::handleClient() {
     }
 
     // Process message and send response
-    std::cout << "Received from client: " << message << std::endl;
+    std::cout << "Server received from " << client_id << ": " << message
+              << std::endl;
     std::string response = processMessage(message);
     sendMessage(response);
   }
@@ -58,7 +59,7 @@ std::string ClientHandler::countLetters(const std::string& message) {
   for (char c : message) {
     letter_counts[c]++;
   }
-  std::string response = "Message |" + message + "\n";
+  std::string response = "\nMessage |" + message + "\n";
 
   for (auto letter : message) {
     if (letter_counts[letter] != 0) {
@@ -71,14 +72,17 @@ std::string ClientHandler::countLetters(const std::string& message) {
 }
 std::string ClientHandler::processMessage(const std::string& message) {
   std::string response;
+  // TODO provide command_list  to parser constructor from here
+  // TODO use pointers to metods in command_list
   Parser parser(message);
 
   if (parser.hasCommand()) {
+    // TODO add switch other commands
     if (parser.getCommand() == "communicate") {
       auto args = parser.getArguments();
       if (args.size() == 2) {
-        server->routeMessage(client_id, args[0], args[1]);
-        return "Message sent";
+        bool message_sent = server->routeMessage(client_id, args[0], args[1]);
+        return "Message " + std::string(message_sent ? "sent" : "not sent");
       } else {
         return "Invalid 'communicate' command format";
       }

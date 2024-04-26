@@ -8,7 +8,7 @@ class Server {
   bool startServer();
   void acceptConnections();
   void removeClient(const std::string& client_id);
-  void routeMessage(const std::string& sender_id,
+  bool routeMessage(const std::string& sender_id,
                     const std::string& receiver_id, const std::string& message);
   ~Server();
 

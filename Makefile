@@ -1,3 +1,7 @@
+#TODO memory leak check
+#TODO tests
+#TODO coverage
+#TODO style check
 # Указываем переменные для удобства
 BUILD_DIR = build
 CMAKE_FLAGS = 

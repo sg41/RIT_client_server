@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
   }
 
   std::string message;
-  auto readUserInput = [] {
+  auto readUserInput = []() {
     std::string message;
     std::getline(std::cin, message);
     return message;
@@ -40,11 +40,12 @@ int main(int argc, char** argv) {
     std::string response;
     bool server_message = false;
     bool user_message = false;
-    std::cout << "> ";
+    std::cout << "> " << std::flush;
     if (!message_thread.valid())
       message_thread = std::async(std::launch::async, readUserInput);
 
     // Check if the client has a message from server or from user input
+    // TODO make it function?
     while (true) {
       if (client.checkHaveMessage()) {
         server_message = true;
@@ -59,6 +60,7 @@ int main(int argc, char** argv) {
     }
 
     if (server_message) {
+      // TODO make it function and avoid duplicates
       if (!client.receiveMessage(response)) {
         if (client.reconnect()) {
           continue;
@@ -92,6 +94,7 @@ int main(int argc, char** argv) {
         }
       };
 
+      // TODO make it function and avoid duplicates
       if (!client.receiveMessage(response)) {
         if (client.reconnect()) {
           continue;
