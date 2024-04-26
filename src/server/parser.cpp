@@ -31,7 +31,7 @@ std::string Parser::extractTag(size_t& offset) {
     return kTagNotFound;
   }
 
-  size_t end_pos = message_.find(kTagEnd, offset + start_pos + kTagStartLength);
+  size_t end_pos = message_.find(kTagEnd, start_pos + kTagStartLength);
 
   if (end_pos == std::string::npos) {
     return kTagNotFound;
@@ -39,7 +39,7 @@ std::string Parser::extractTag(size_t& offset) {
 
   offset = end_pos + kTagEndLength;
   return message_.substr(start_pos + kTagStartLength,
-                         end_pos - start_pos - kTagStartLength);
+                         end_pos - start_pos - kTagEndLength);
 }
 
 Parser::Parser(std::string message) : message_(message) { parse(); }

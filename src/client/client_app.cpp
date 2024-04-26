@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <cstring>
+#include <future>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -22,58 +23,87 @@ int main(int argc, char** argv) {
   int server_port = atoi(argv[2]);
 
   Client client(server_ip, server_port, ENABLE_OUTPUT);
-  if (!client.connectToServer()) {
+  if (!client.connectToServer() && !client.reconnect()) {
     return 1;
   }
 
-  while (true) {
+  std::string message;
+  auto readUserInput = [] {
     std::string message;
+    std::getline(std::cin, message);
+    return message;
+  };
+  std::future<std::string> message_thread =
+      std::async(std::launch::async, readUserInput);
+
+  while (true) {
     std::string response;
-    bool have_message = false;
+    bool server_message = false;
+    bool user_message = false;
     std::cout << "> ";
+    if (!message_thread.valid())
+      message_thread = std::async(std::launch::async, readUserInput);
+
+    // Check if the client has a message from server or from user input
     while (true) {
-      char c;
-      // c = std::cin.get();
-      std::cin.readsome(&c, 1);
-      if (!std::cin.eof()) {
-        if (c == '\n') break;
-        message.append(&c, 1);
-      } else {
-        break;  // Will exit because of std::cin.eof()
-      }
       if (client.checkHaveMessage()) {
-        have_message = true;
+        server_message = true;
+        break;
+      }
+      if (message_thread.wait_for(std::chrono::milliseconds(100)) ==
+          std::future_status::ready) {
+        message = message_thread.get();
+        user_message = true;
         break;
       }
     }
-    if (have_message) {
+
+    if (server_message) {
       if (!client.receiveMessage(response)) {
-        client.reconnect();
-        continue;
+        if (client.reconnect()) {
+          continue;
+        } else {
+          std::cout << "Server disconnected." << std::endl;
+          break;
+        }
       }
       std::cout << "Got new message: " << response << std::endl;
+    }
+
+    if (!user_message) {
       continue;
     }
 
-    if (message == "exit" || std::cin.eof()) {
-      break;
-    }
+    {  // Got user message block:
+      if (message == "exit" || std::cin.eof()) {
+        break;
+      }
 
-    if (message == "") {
-      continue;
-    }
+      if (message == "") {
+        continue;
+      }
 
-    if (!client.sendMessage(message)) {
-      client.reconnect();
-      continue;
-    };
+      if (!client.sendMessage(message)) {
+        if (client.reconnect()) {
+          continue;
+        } else {
+          std::cout << "Server disconnected." << std::endl;
+          break;
+        }
+      };
 
-    if (!client.receiveMessage(response)) {
-      client.reconnect();
-      continue;
-    }
-    std::cout << "Server: " << response << std::endl;
+      if (!client.receiveMessage(response)) {
+        if (client.reconnect()) {
+          continue;
+        } else {
+          std::cout << "Server disconnected." << std::endl;
+          break;
+        }
+      }
+      std::cout << "Server: " << response << std::endl;
+    }  // End of got user message block
   }
 
+  std::cout << "\nBye!" << std::endl;
   return 0;
 }

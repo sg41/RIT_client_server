@@ -14,7 +14,7 @@ class Client {
   bool checkHaveMessage();
   bool sendMessage(const std::string& message);
   bool receiveMessage(std::string& message);
-  void reconnect();
+  bool reconnect();
   ~Client();
 
  private:

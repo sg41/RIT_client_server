@@ -27,6 +27,7 @@ Client::Client(const std::string& ip, int port, bool log)
 
 bool Client::connectToServer() {
   sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
+  bool connected = false;
   if (sockfd_ < 0) {
     if (log_)
       std::cerr << "Error creating socket: " << strerror(errno) << std::endl;
@@ -39,19 +40,14 @@ bool Client::connectToServer() {
   serv_addr.sin_port = htons(server_port_);
   inet_pton(AF_INET, server_ip_.c_str(), &serv_addr.sin_addr);
 
-  int attempt = 0;
-  while (connect(sockfd_, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) <
-             0 &&
-         attempt++ < kMaxRetries) {
-    if (log_)
-      std::cerr << "Error connecting to server: " << strerror(errno) << "\n"
-                << " Retrying #" << attempt << " of " << kMaxRetries << " in "
-                << kRetryTimeout << " seconds..." << std::endl;
-    sleep(kRetryTimeout);
-    continue;
+  if (connect(sockfd_, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) >= 0) {
+    connected = true;
   }
-  if (log_) std::cout << "Connected to server!" << std::endl;
-  return true;
+
+  if (log_)
+    std::cout << "Connected to server: " << (connected ? "success" : "error")
+              << std::endl;
+  return connected;
 }
 
 bool Client::checkHaveMessage() {
@@ -75,13 +71,13 @@ bool Client::sendMessage(const std::string& message) {
   if (result <= 0 && log_) {
     std::cerr << "Error sending message: " << strerror(errno) << std::endl;
   }
-  return result >= 0;
+  return result > 0;
 }
 
 bool Client::receiveMessage(std::string& message) {
   char buffer[kBufferSize] = {0};
   int bytes_received = recv(sockfd_, buffer, kBufferSize, 0);
-  if (bytes_received < 0) {
+  if (bytes_received <= 0) {
     if (log_)
       std::cerr << "Error receiving message or connection closed: "
                 << strerror(errno) << std::endl;
@@ -89,19 +85,26 @@ bool Client::receiveMessage(std::string& message) {
   } else {
     message = std::string(buffer, bytes_received);
   }
-  return bytes_received >= 0;
+  return bytes_received > 0;
 }
 
-void Client::reconnect() {
+bool Client::reconnect() {
+  bool connected = false;
   int attempt = 0;
   if (sockfd_ >= 0) close(sockfd_);
   sockfd_ = -1;
-  while (!connectToServer() && attempt++ < kMaxRetries) {
+  while (attempt++ < kMaxRetries) {
+    if (connectToServer()) {
+      connected = true;
+      break;
+    }
     if (log_)
       std::cout << "Attempt to reconnect #" << attempt << " of " << kMaxRetries
                 << " in " << kRetryTimeout << " seconds..." << std::endl;
     sleep(kRetryTimeout);
   }
+
+  return connected;
 }
 
 Client::~Client() {
