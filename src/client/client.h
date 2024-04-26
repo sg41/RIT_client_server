@@ -11,6 +11,7 @@ class Client {
  public:
   Client(const std::string& ip, int port, bool log = false);
   bool connectToServer();
+  bool checkHaveMessage();
   bool sendMessage(const std::string& message);
   bool receiveMessage(std::string& message);
   void reconnect();

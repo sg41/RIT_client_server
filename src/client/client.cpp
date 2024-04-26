@@ -12,6 +12,7 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -51,6 +52,22 @@ bool Client::connectToServer() {
   }
   if (log_) std::cout << "Connected to server!" << std::endl;
   return true;
+}
+
+bool Client::checkHaveMessage() {
+  bool have_data = false;
+  fd_set readfds;
+  FD_ZERO(&readfds);
+  FD_SET(sockfd_, &readfds);
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = 0;
+  int result = select(sockfd_ + 1, &readfds, NULL, NULL, &tv);
+  if (result > 0 && FD_ISSET(sockfd_, &readfds)) {
+    have_data = true;
+  }
+
+  return have_data;
 }
 
 bool Client::sendMessage(const std::string& message) {

@@ -28,8 +28,32 @@ int main(int argc, char** argv) {
 
   while (true) {
     std::string message;
+    std::string response;
+    bool have_message = false;
     std::cout << "> ";
-    std::getline(std::cin, message);
+    while (true) {
+      char c;
+      // c = std::cin.get();
+      std::cin.readsome(&c, 1);
+      if (!std::cin.eof()) {
+        if (c == '\n') break;
+        message.append(&c, 1);
+      } else {
+        break;  // Will exit because of std::cin.eof()
+      }
+      if (client.checkHaveMessage()) {
+        have_message = true;
+        break;
+      }
+    }
+    if (have_message) {
+      if (!client.receiveMessage(response)) {
+        client.reconnect();
+        continue;
+      }
+      std::cout << "Got new message: " << response << std::endl;
+      continue;
+    }
 
     if (message == "exit" || std::cin.eof()) {
       break;
@@ -44,7 +68,6 @@ int main(int argc, char** argv) {
       continue;
     };
 
-    std::string response;
     if (!client.receiveMessage(response)) {
       client.reconnect();
       continue;
