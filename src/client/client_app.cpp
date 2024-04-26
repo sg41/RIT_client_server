@@ -1,6 +1,15 @@
-#include "client.h"
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
-#define ENABLE_OUTPUT true
+#include <chrono>
+#include <cstring>
+#include <iostream>
+#include <string>
+#include <thread>
+
+#include "client.h"
 
 int main(int argc, char** argv) {
   if (argc < 3) {
