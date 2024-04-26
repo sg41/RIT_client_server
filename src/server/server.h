@@ -21,7 +21,7 @@ class Server {
 
  public:
   Server(int port, bool log = false)
-      : port_(port), server_socket_(-1), log_(log) {}
+      : server_socket_(-1), port_(port), log_(log) {}
 
   bool startServer() {
     server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
