@@ -8,13 +8,13 @@ class Server;
 class ClientHandler {
  public:
   ClientHandler(int socket, const std::string& id, Server* server);
-  void sendMessageToClient(const std::string& message);
+  std::string sendMessageToClient(const std::string& message);
   std::string getClientID() const;
   void handleClient();
 
  private:
   std::string receiveMessage();
-  void sendMessage(const std::string& message);
+  std::string sendMessage(const std::string& message);
   std::string countLetters(const std::string& message);
   std::string processMessage(const std::string& message);
 

@@ -43,6 +43,10 @@ std::string Parser::extractTag(size_t& offset) {
 }
 
 Parser::Parser(std::string message) : message_(message) { parse(); }
+Parser::Parser(std::string message, std::map<std::string, int> valid_commands)
+    : message_(message), valid_commands_(valid_commands) {
+  parse();
+}
 bool Parser::hasCommand() const { return has_command_; };
 int Parser::numberArguments() const { return num_arguments_; };
 const std::string& Parser::getCommand() const { return command_; };

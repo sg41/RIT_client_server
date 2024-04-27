@@ -16,8 +16,8 @@
 ClientHandler::ClientHandler(int socket, const std::string& id, Server* server)
     : client_socket(socket), client_id(id), server(server) {}
 
-void ClientHandler::sendMessageToClient(const std::string& message) {
-  sendMessage(message);  // Use the existing sendMessage method
+std::string ClientHandler::sendMessageToClient(const std::string& message) {
+  return sendMessage(message);  // Use the existing sendMessage method
 }
 
 std::string ClientHandler::getClientID() const { return client_id; }
@@ -50,8 +50,9 @@ std::string ClientHandler::receiveMessage() {
   return std::string(buffer, bytes_received);
 }
 
-void ClientHandler::sendMessage(const std::string& message) {
-  send(client_socket, message.c_str(), message.length(), 0);
+std::string ClientHandler::sendMessage(const std::string& message) {
+  int result = send(client_socket, message.c_str(), message.length(), 0);
+  return result == message.length() ? "Ok" : "Error";
 }
 
 std::string ClientHandler::countLetters(const std::string& message) {
@@ -70,19 +71,24 @@ std::string ClientHandler::countLetters(const std::string& message) {
   }
   return response;
 }
+
 std::string ClientHandler::processMessage(const std::string& message) {
   std::string response;
   // TODO provide command_list  to parser constructor from here
   // TODO use pointers to metods in command_list
-  Parser parser(message);
+  std::map<std::string, int> valid_commands{{"send", 2}, {"show", 1}};
+  std::map<std::string,
+           std::string (ClientHandler::*)(const std::string& message)>
+      commands = {{"send", &ClientHandler::sendMessage},
+                  {"show", &ClientHandler::countLetters}};
+  Parser parser(message, valid_commands);
 
   if (parser.hasCommand()) {
-    // TODO add switch other commands
     if (parser.getCommand() == "communicate") {
       auto args = parser.getArguments();
       if (args.size() == 2) {
-        bool message_sent = server->routeMessage(client_id, args[0], args[1]);
-        return "Message " + std::string(message_sent ? "sent" : "not sent");
+        server->routeMessage(client_id, args[0], args[1]);
+        return "Message sent";
       } else {
         return "Invalid 'communicate' command format";
       }

@@ -13,6 +13,7 @@ const size_t kTagEndLength = kTagEnd.length();
 class Parser {
  public:
   Parser(std::string message);
+  Parser(std::string message, std::map<std::string, int> valid_commands);
   bool hasCommand() const;
   int numberArguments() const;
   const std::string& getCommand() const;
