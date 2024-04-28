@@ -3,6 +3,7 @@ add_subdirectory(tools)
 add_executable(client 
     client/client_app.cpp 
     client/client.cpp
+    client/console_client.cpp
     )
 add_executable(server 
     server/server_app.cpp 
