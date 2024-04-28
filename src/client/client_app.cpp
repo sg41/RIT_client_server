@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     std::getline(std::cin, message);
     return message;
   };
-  std::future<std::string> message_thread =
+  std::future<std::string> input_thread =
       std::async(std::launch::async, readUserInput);
 
   while (true) {
@@ -41,8 +41,8 @@ int main(int argc, char** argv) {
     bool server_message = false;
     bool user_message = false;
     std::cout << "> " << std::flush;
-    if (!message_thread.valid())
-      message_thread = std::async(std::launch::async, readUserInput);
+    if (!input_thread.valid())
+      input_thread = std::async(std::launch::async, readUserInput);
 
     // Check if the client has a message from server or from user input
     // TODO make it function?
@@ -51,9 +51,9 @@ int main(int argc, char** argv) {
         server_message = true;
         break;
       }
-      if (message_thread.wait_for(std::chrono::milliseconds(100)) ==
+      if (input_thread.wait_for(std::chrono::milliseconds(100)) ==
           std::future_status::ready) {
-        message = message_thread.get();
+        message = input_thread.get();
         user_message = true;
         break;
       }

@@ -65,15 +65,7 @@ Parser::Parser(const std::string& message,
       valid_commands_(valid_commands) {
   parse();
 };
-// template <typename T>
-// Parser::Parser(const std::string& message,
-//                std::map<std::string, T> valid_commands)
-//     : message_(message) {
-//   for (auto it = valid_commands.begin(); it != valid_commands.end(); ++it) {
-//     valid_commands_.insert(it->first);
-//   }
-//   parse();
-// }
+
 bool Parser::hasCommand() const { return has_command_; };
 const std::string& Parser::getCommand() const { return command_; };
 const std::string& Parser::getArgument() const { return argument_; };

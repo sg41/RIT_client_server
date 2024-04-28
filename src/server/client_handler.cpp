@@ -78,7 +78,7 @@ std::string ClientHandler::processMessage(const std::string& message) {
   std::map<std::string, std::string (ClientHandler::*)(const std::string&)>
       commands{{"send", &ClientHandler::sendMessageToClient},
                {"show", &ClientHandler::showConnections}};
-  Parser parser(message, {"send", "show"}, "", "");
+  Parser parser(message, commands, "", "");
   if (!parser.hasCommand()) {
     return countLetters(message);
   }
@@ -117,7 +117,8 @@ std::string ClientHandler::sendMessageToClient(const std::string& message) {
   if (parser.hasCommand()) {
     return server->routeMessage(client_id, parser.getCommand(),
                                 parser.getArgument())
-               ? "Message sent"
+               // if message sent to itself - no extra answer needed
+               ? (client_id == parser.getCommand() ? "" : "Message sent")
                : "Error";
   } else {
     return "Invalid command format";
