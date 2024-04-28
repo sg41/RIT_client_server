@@ -63,7 +63,10 @@ void Server::acceptConnections() {
     std::string client_id = "client_" + std::to_string(next_client_id++);
     ClientHandler* client_handler =
         new ClientHandler(client_socket, client_id, this);
-    clients_[client_id] = client_handler;  // Add to the clients map
+    {  // Add to the clients map - protected by a mutex
+      std::lock_guard<std::mutex> lock(clients_mutex_);
+      clients_[client_id] = client_handler;
+    }
     if (log_)
       std::cout << "New client connected with ID: " << client_id << std::endl;
 
@@ -75,6 +78,7 @@ void Server::acceptConnections() {
 void Server::removeClient(const std::string& client_id) {
   auto it = clients_.find(client_id);
   if (it != clients_.end()) {
+    std::lock_guard<std::mutex> lock(clients_mutex_);
     delete it->second;
     clients_.erase(it);
   }
@@ -90,7 +94,10 @@ bool Server::routeMessage(const std::string& sender_id,
     message_sent = true;
   } else {
     // Handle the case where the recipient is not found
-    std::cout << "Client with ID " << receiver_id << " not found." << std::endl;
+    message_sent = false;
+    if (log_)
+      std::cout << "Client with ID " << receiver_id << " not found."
+                << std::endl;
   }
   return message_sent;
 }

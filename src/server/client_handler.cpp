@@ -18,6 +18,10 @@
 ClientHandler::ClientHandler(int socket, const std::string& id, Server* server)
     : client_socket(socket), client_id(id), server(server) {}
 
+ClientHandler::~ClientHandler() {
+  if (client_socket >= 0) close(client_socket);
+}
+
 std::string ClientHandler::getClientID() const { return client_id; }
 
 void ClientHandler::handleClient() {
@@ -34,6 +38,7 @@ void ClientHandler::handleClient() {
     sendMessage(response);
   }
 
+  // TODO check this section - handler remove itself?
   close(client_socket);
   server->removeClient(client_id);
   std::cout << "Client disconnected." << std::endl;
@@ -99,15 +104,16 @@ std::string ClientHandler::showConnections(const std::string& message) {
     return "Invalid command format";
   }
 
+  std::lock_guard<std::mutex> lock(server->getClientsMutex());
+  auto clients = server->getClients();
   if (parser.getCommand() == "list") {
-    auto clients = server->getClients();
     std::string response = "\nClient ID:\n";
     for (auto it = clients.begin(); it != clients.end(); ++it) {
       response += it->first + "\n";
     }
     return response;
   } else {
-    return std::to_string(server->getClients().size());
+    return std::to_string(clients.size());
   }
   return "Invalid command format";
 }

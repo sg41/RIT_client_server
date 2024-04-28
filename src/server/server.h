@@ -1,5 +1,9 @@
 #ifndef SERVER_SERVER_H
 #define SERVER_SERVER_H
+#include <map>
+#include <mutex>
+#include <string>
+
 #include "client_handler.h"
 
 class Server {
@@ -12,8 +16,10 @@ class Server {
                     const std::string& receiver_id, const std::string& message);
   const std::map<std::string, ClientHandler*>& getClients() const;
   ~Server();
+  std::mutex& getClientsMutex() { return clients_mutex_; }
 
  private:
+  std::mutex clients_mutex_;
   int server_socket_ = -1;
   int port_;
   bool log_ = false;
