@@ -8,17 +8,27 @@
 #include <chrono>
 #include <cstring>
 #include <iostream>
+#include <map>
 #include <string>
 #include <thread>
 
+#include "command.h"
 #include "server.h"
 
 ClientHandler::ClientHandler(int socket, const std::string& id, Server* server)
     : client_socket(socket), client_id(id), server(server) {}
 
 std::string ClientHandler::sendMessageToClient(const std::string& message) {
-  return sendMessage(message);  // Use the existing sendMessage method
-}
+  Parser parser(message);
+  if (parser.hasCommand()) {
+    return server->routeMessage(client_id, parser.getCommand(),
+                                parser.getArgument())
+               ? "Message sent"
+               : "Error";
+  } else {
+    return "Invalid command format";
+  }
+};
 
 std::string ClientHandler::getClientID() const { return client_id; }
 
@@ -73,33 +83,41 @@ std::string ClientHandler::countLetters(const std::string& message) {
 }
 
 std::string ClientHandler::processMessage(const std::string& message) {
-  std::string response;
-  // TODO provide command_list  to parser constructor from here
-  // TODO use pointers to metods in command_list
-  std::map<std::string, int> valid_commands{{"send", 2}, {"show", 1}};
-  std::map<std::string,
-           std::string (ClientHandler::*)(const std::string& message)>
-      commands = {{"send", &ClientHandler::sendMessage},
-                  {"show", &ClientHandler::countLetters}};
-  Parser parser(message, valid_commands);
-
-  if (parser.hasCommand()) {
-    response = (this->*(commands[parser.getCommand()]))(message);
-    // if (parser.getCommand() == "communicate") {
-    //   auto args = parser.getArguments();
-    //   if (args.size() == 2) {
-    //     server->routeMessage(client_id, args[0], args[1]);
-    //     return "Message sent";
-    //   } else {
-    //     return "Invalid 'communicate' command format";
-    //   }
-    // }
-    response = "Command: " + parser.getCommand() + " not implemented";
-  } else {
-    response = countLetters(message);
+  // TODO do not use class Command!
+  std::unordered_set<std::string> valid_commands{"send", "show"};
+  std::map<std::string, std::unique_ptr<Command>> commands;
+  commands["send"] = std::make_unique<CommunicateCommand>();
+  commands["show"] = std::make_unique<ShowCommand>();
+  Parser parser(message, valid_commands, "", "");
+  if (!parser.hasCommand()) {
+    return countLetters(message);
   }
 
-  return response;
+  auto it = commands.find(parser.getCommand());
+  if (it != commands.end()) {
+    return it->second->execute(*this, parser.getArgument());
+  } else {
+    return "Unknown command.";
+  }
 }
 
 const Server* ClientHandler::getServer() const { return server; }
+
+std::string ClientHandler::showConnections(const std::string& message) {
+  Parser parser(message, {"number", "list"}, "", "");
+  if (!parser.hasCommand()) {
+    return "Invalid command format";
+  }
+
+  if (parser.getCommand() == "number") {
+    return std::to_string(server->getClients().size());
+  } else if (parser.getCommand() == "list") {
+    auto clients = server->getClients();
+    std::string response = "\nClient ID:\n";
+    for (auto it = clients.begin(); it != clients.end(); ++it) {
+      response += it->first + "\n";
+    }
+    return response;
+  }
+  return "Invalid command format";
+}

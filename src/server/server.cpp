@@ -86,7 +86,7 @@ bool Server::routeMessage(const std::string& sender_id,
   bool message_sent = false;
   auto it = clients_.find(receiver_id);
   if (it != clients_.end()) {
-    it->second->sendMessageToClient(sender_id + ": " + message);
+    it->second->sendMessage(sender_id + ": " + message);
     message_sent = true;
   } else {
     // Handle the case where the recipient is not found

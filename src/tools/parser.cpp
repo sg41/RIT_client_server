@@ -1,30 +1,42 @@
 #include "parser.h"
 
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
-
 void Parser::parse() {
   size_t offset = 0;
   command_ = extractTag(offset);
 
-  // Check if the extracted command is valid
-  auto it = valid_commands_.find(command_);
-  if (it == valid_commands_.end()) {
-    return;  // Invalid command
+  if (command_ == kTagNotFound) {
+    return;
+  }
+
+  // Check if the extracted command is valid if valid_commands_ is not empty
+  if (!valid_commands_.empty()) {
+    auto it = valid_commands_.find(command_);
+    if (it == valid_commands_.end()) {
+      return;  // Invalid command
+    }
   }
 
   has_command_ = true;
-  num_arguments_ = it->second;
 
-  // Extract arguments based on the required number
-  for (int i = 0; i < num_arguments_; ++i) {
-    arguments_.push_back(extractTag(offset));
-  }
+  argument_ = message_.substr(offset);
 }
 
 std::string Parser::extractTag(size_t& offset) {
+  if (kTagStartLength == 0 || kTagEndLength == 0) {
+    auto best_match = kTagNotFound;
+    auto best_it = std::string::npos;
+    for (auto command : valid_commands_) {
+      auto it = message_.find(command);
+      if (it != std::string::npos) {
+        if (it < best_it) {
+          best_it = it;
+          best_match = command;
+        }
+      }
+    }
+    return best_match;
+  }
+
   size_t start_pos = message_.find(kTagStart, offset);
 
   if (start_pos == std::string::npos) {
@@ -42,14 +54,26 @@ std::string Parser::extractTag(size_t& offset) {
                          end_pos - start_pos - kTagEndLength);
 }
 
-Parser::Parser(std::string message) : message_(message) { parse(); }
-Parser::Parser(std::string message, std::map<std::string, int> valid_commands)
-    : message_(message), valid_commands_(valid_commands) {
+Parser::Parser(const std::string& message) : message_(message) { parse(); }
+
+Parser::Parser(const std::string& message,
+               std::unordered_set<std::string> valid_commands,
+               std::string start, std::string end)
+    : kTagStart(start),
+      kTagEnd(end),
+      message_(message),
+      valid_commands_(valid_commands) {
   parse();
-}
-bool Parser::hasCommand() const { return has_command_; };
-int Parser::numberArguments() const { return num_arguments_; };
-const std::string& Parser::getCommand() const { return command_; };
-const std::vector<std::string>& Parser::getArguments() const {
-  return arguments_;
 };
+// template <typename T>
+// Parser::Parser(const std::string& message,
+//                std::map<std::string, T> valid_commands)
+//     : message_(message) {
+//   for (auto it = valid_commands.begin(); it != valid_commands.end(); ++it) {
+//     valid_commands_.insert(it->first);
+//   }
+//   parse();
+// }
+bool Parser::hasCommand() const { return has_command_; };
+const std::string& Parser::getCommand() const { return command_; };
+const std::string& Parser::getArgument() const { return argument_; };
