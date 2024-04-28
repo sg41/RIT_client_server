@@ -1,7 +1,6 @@
 #ifndef CLIENT_CLIENT_H
 #define CLIENT_CLIENT_H
 #include <string>
-#define ENABLE_OUTPUT true
 
 const int kMaxRetries = 3;
 const int kRetryTimeout = 3;

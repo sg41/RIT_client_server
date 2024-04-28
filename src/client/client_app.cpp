@@ -1,3 +1,5 @@
+#include "client_app.h"
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -10,7 +12,105 @@
 #include <string>
 #include <thread>
 
-#include "client.h"
+#define ENABLE_OUTPUT 1
+
+ClientApp::ClientApp(const std::string& server_ip, int server_port, bool log)
+    : client_(server_ip, server_port, log) {}
+
+bool ClientApp::connectToServer() {
+  if (!client_.connectToServer() && !client_.reconnect()) {
+    return false;
+  }
+  return true;
+}
+
+ClientApp::Event ClientApp::eventLoop() {
+  auto readUserInput = []() {
+    std::string message;
+    std::getline(std::cin, message);
+    return message;
+  };
+  if (!input_thread_.valid())
+    input_thread_ = std::async(std::launch::async, readUserInput);
+  while (true) {
+    if (client_.checkHaveMessage()) {
+      return Event::kServerMessage;
+    }
+    if (input_thread_.wait_for(std::chrono::milliseconds(100)) ==
+        std::future_status::ready) {
+      message_ = input_thread_.get();
+      return Event::kUserInput;
+    }
+  }
+}
+
+bool ClientApp::receiveServerMessage(std::string& response) {
+  if (!client_.receiveMessage(response)) {
+    return client_.reconnect();
+  }
+  return true;
+}
+
+bool ClientApp::talkToServer(std::string& response) {
+  bool got_error = false;
+  // Sending user input to server
+  if (!client_.sendMessage(message_)) {
+    if (!client_.reconnect()) {
+      got_error = true;
+    }
+  }
+
+  // Receiving response from server
+  if (receiveServerMessage(response)) {
+    std::cout << "Server: " << response << std::endl;
+  } else {
+    got_error = true;
+  }
+  return !got_error;
+}
+
+int ClientApp::run() {
+  running_ = true;
+  int error_code = 0;
+
+  while (running_) {
+    std::string response;
+    std::cout << "> " << std::flush;
+
+    // Check if the client has a message from server or from user input
+    Event event = eventLoop();
+
+    switch (event) {
+      case Event::kServerMessage:
+        if (receiveServerMessage(response)) {
+          std::cout << "Got new message: " << response << std::endl;
+        } else {
+          running_ = false;
+          error_code = 1;
+          std::cout << "Server disconnected." << std::endl;
+        }
+        break;
+      case Event::kUserInput:  // Got user message block:
+        if (message_ == "exit" || std::cin.eof()) {
+          running_ = false;
+          break;
+        }
+
+        if (message_ == "") {
+          break;
+        }
+        if (!talkToServer(response)) {
+          running_ = false;
+          error_code = 1;
+          std::cout << "Server disconnected." << std::endl;
+          break;
+        }
+      default:
+        break;
+    }
+  }
+  return error_code;
+}
 
 int main(int argc, char** argv) {
   if (argc < 3) {
@@ -22,90 +122,13 @@ int main(int argc, char** argv) {
   std::string server_ip = argv[1];
   int server_port = atoi(argv[2]);
 
-  Client client(server_ip, server_port, ENABLE_OUTPUT);
-  if (!client.connectToServer() && !client.reconnect()) {
+  ClientApp client(server_ip, server_port, true);
+  if (!client.connectToServer()) {
+    std::cerr << "Failed to connect to server." << std::endl;
     return 1;
   }
 
-  std::string message;
-  auto readUserInput = []() {
-    std::string message;
-    std::getline(std::cin, message);
-    return message;
-  };
-  std::future<std::string> input_thread =
-      std::async(std::launch::async, readUserInput);
-
-  while (true) {
-    std::string response;
-    bool server_message = false;
-    bool user_message = false;
-    std::cout << "> " << std::flush;
-    if (!input_thread.valid())
-      input_thread = std::async(std::launch::async, readUserInput);
-
-    // Check if the client has a message from server or from user input
-    // TODO make it function?
-    while (true) {
-      if (client.checkHaveMessage()) {
-        server_message = true;
-        break;
-      }
-      if (input_thread.wait_for(std::chrono::milliseconds(100)) ==
-          std::future_status::ready) {
-        message = input_thread.get();
-        user_message = true;
-        break;
-      }
-    }
-
-    if (server_message) {
-      // TODO make it function and avoid duplicates
-      if (!client.receiveMessage(response)) {
-        if (client.reconnect()) {
-          continue;
-        } else {
-          std::cout << "Server disconnected." << std::endl;
-          break;
-        }
-      }
-      std::cout << "Got new message: " << response << std::endl;
-    }
-
-    if (!user_message) {
-      continue;
-    }
-
-    {  // Got user message block:
-      if (message == "exit" || std::cin.eof()) {
-        break;
-      }
-
-      if (message == "") {
-        continue;
-      }
-
-      if (!client.sendMessage(message)) {
-        if (client.reconnect()) {
-          continue;
-        } else {
-          std::cout << "Server disconnected." << std::endl;
-          break;
-        }
-      };
-
-      // TODO make it function and avoid duplicates
-      if (!client.receiveMessage(response)) {
-        if (client.reconnect()) {
-          continue;
-        } else {
-          std::cout << "Server disconnected." << std::endl;
-          break;
-        }
-      }
-      std::cout << "Server: " << response << std::endl;
-    }  // End of got user message block
-  }
+  client.run();
 
   std::cout << "\nBye!" << std::endl;
   return 0;

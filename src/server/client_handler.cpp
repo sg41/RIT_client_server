@@ -71,7 +71,6 @@ std::string ClientHandler::countLetters(const std::string& message) {
 }
 
 std::string ClientHandler::processMessage(const std::string& message) {
-  // TODO do not use class Command!
   // std::map<std::string, std::unique_ptr<Command>> commands;
   // commands["send"] = std::make_unique<CommunicateCommand>();
   // commands["show"] = std::make_unique<ShowCommand>();
@@ -113,6 +112,7 @@ std::string ClientHandler::showConnections(const std::string& message) {
   return "Invalid command format";
 }
 std::string ClientHandler::sendMessageToClient(const std::string& message) {
+  // Parser parser(message, {}, "\"", "\"");
   Parser parser(message);
   if (parser.hasCommand()) {
     return server->routeMessage(client_id, parser.getCommand(),
