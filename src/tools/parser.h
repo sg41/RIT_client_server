@@ -15,8 +15,8 @@ class Parser {
  public:
   Parser(const std::string& message);
   Parser(const std::string& message,
-         std::unordered_set<std::string> valid_commands,
-         std::string start = "<", std::string end = ">");
+         const std::unordered_set<std::string>& valid_commands,
+         const std::string& start = "<", const std::string& end = ">");
   //   template <typename T>
   //   Parser(const std::string& message, std::map<std::string, T>
   //   valid_commands);

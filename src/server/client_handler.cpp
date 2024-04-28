@@ -18,18 +18,6 @@
 ClientHandler::ClientHandler(int socket, const std::string& id, Server* server)
     : client_socket(socket), client_id(id), server(server) {}
 
-std::string ClientHandler::sendMessageToClient(const std::string& message) {
-  Parser parser(message);
-  if (parser.hasCommand()) {
-    return server->routeMessage(client_id, parser.getCommand(),
-                                parser.getArgument())
-               ? "Message sent"
-               : "Error";
-  } else {
-    return "Invalid command format";
-  }
-};
-
 std::string ClientHandler::getClientID() const { return client_id; }
 
 void ClientHandler::handleClient() {
@@ -84,18 +72,21 @@ std::string ClientHandler::countLetters(const std::string& message) {
 
 std::string ClientHandler::processMessage(const std::string& message) {
   // TODO do not use class Command!
-  std::unordered_set<std::string> valid_commands{"send", "show"};
-  std::map<std::string, std::unique_ptr<Command>> commands;
-  commands["send"] = std::make_unique<CommunicateCommand>();
-  commands["show"] = std::make_unique<ShowCommand>();
-  Parser parser(message, valid_commands, "", "");
+  // std::map<std::string, std::unique_ptr<Command>> commands;
+  // commands["send"] = std::make_unique<CommunicateCommand>();
+  // commands["show"] = std::make_unique<ShowCommand>();
+  std::map<std::string, std::string (ClientHandler::*)(const std::string&)>
+      commands{{"send", &ClientHandler::sendMessageToClient},
+               {"show", &ClientHandler::showConnections}};
+  Parser parser(message, {"send", "show"}, "", "");
   if (!parser.hasCommand()) {
     return countLetters(message);
   }
 
   auto it = commands.find(parser.getCommand());
   if (it != commands.end()) {
-    return it->second->execute(*this, parser.getArgument());
+    // return it->second->execute(*this, parser.getArgument());
+    return (this->*it->second)(parser.getArgument());
   } else {
     return "Unknown command.";
   }
@@ -104,20 +95,31 @@ std::string ClientHandler::processMessage(const std::string& message) {
 const Server* ClientHandler::getServer() const { return server; }
 
 std::string ClientHandler::showConnections(const std::string& message) {
-  Parser parser(message, {"number", "list"}, "", "");
+  Parser parser(message, {"number", "list", "count"}, "", "");
   if (!parser.hasCommand()) {
     return "Invalid command format";
   }
 
-  if (parser.getCommand() == "number") {
-    return std::to_string(server->getClients().size());
-  } else if (parser.getCommand() == "list") {
+  if (parser.getCommand() == "list") {
     auto clients = server->getClients();
     std::string response = "\nClient ID:\n";
     for (auto it = clients.begin(); it != clients.end(); ++it) {
       response += it->first + "\n";
     }
     return response;
+  } else {
+    return std::to_string(server->getClients().size());
   }
   return "Invalid command format";
 }
+std::string ClientHandler::sendMessageToClient(const std::string& message) {
+  Parser parser(message);
+  if (parser.hasCommand()) {
+    return server->routeMessage(client_id, parser.getCommand(),
+                                parser.getArgument())
+               ? "Message sent"
+               : "Error";
+  } else {
+    return "Invalid command format";
+  }
+};
