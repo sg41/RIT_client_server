@@ -29,6 +29,6 @@ class Parser {
   std::string command_;
   std::vector<std::string> arguments_;
   std::map<std::string, int> valid_commands_{
-      {"shutdown", 0}, {"show", 1}, {"communicate", 2}};
+      {"shutdown", 0}, {"show", 1}, {"communicate", 2}};  // Default commands
 };
 #endif

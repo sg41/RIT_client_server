@@ -11,6 +11,7 @@ class ClientHandler {
   std::string sendMessageToClient(const std::string& message);
   std::string getClientID() const;
   void handleClient();
+  const Server* getServer() const;
 
  private:
   std::string receiveMessage();

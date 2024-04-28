@@ -63,7 +63,7 @@ void Server::acceptConnections() {
     std::string client_id = "client_" + std::to_string(next_client_id++);
     ClientHandler* client_handler =
         new ClientHandler(client_socket, client_id, this);
-    clients[client_id] = client_handler;  // Add to the clients map
+    clients_[client_id] = client_handler;  // Add to the clients map
     if (log_)
       std::cout << "New client connected with ID: " << client_id << std::endl;
 
@@ -73,10 +73,10 @@ void Server::acceptConnections() {
 }
 
 void Server::removeClient(const std::string& client_id) {
-  auto it = clients.find(client_id);
-  if (it != clients.end()) {
+  auto it = clients_.find(client_id);
+  if (it != clients_.end()) {
     delete it->second;
-    clients.erase(it);
+    clients_.erase(it);
   }
 }
 
@@ -84,8 +84,8 @@ bool Server::routeMessage(const std::string& sender_id,
                           const std::string& receiver_id,
                           const std::string& message) {
   bool message_sent = false;
-  auto it = clients.find(receiver_id);
-  if (it != clients.end()) {
+  auto it = clients_.find(receiver_id);
+  if (it != clients_.end()) {
     it->second->sendMessageToClient(sender_id + ": " + message);
     message_sent = true;
   } else {
@@ -95,11 +95,15 @@ bool Server::routeMessage(const std::string& sender_id,
   return message_sent;
 }
 
+const std::map<std::string, ClientHandler*>& Server::getClients() const {
+  return clients_;
+}
+
 Server::~Server() {
   if (server_socket_ >= 0) {
     close(server_socket_);
   }
-  for (auto it = clients.begin(); it != clients.end(); ++it) {
+  for (auto it = clients_.begin(); it != clients_.end(); ++it) {
     delete it->second;
   }
 }

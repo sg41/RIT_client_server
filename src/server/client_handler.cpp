@@ -51,7 +51,7 @@ std::string ClientHandler::receiveMessage() {
 }
 
 std::string ClientHandler::sendMessage(const std::string& message) {
-  int result = send(client_socket, message.c_str(), message.length(), 0);
+  size_t result = send(client_socket, message.c_str(), message.length(), 0);
   return result == message.length() ? "Ok" : "Error";
 }
 
@@ -84,15 +84,16 @@ std::string ClientHandler::processMessage(const std::string& message) {
   Parser parser(message, valid_commands);
 
   if (parser.hasCommand()) {
-    if (parser.getCommand() == "communicate") {
-      auto args = parser.getArguments();
-      if (args.size() == 2) {
-        server->routeMessage(client_id, args[0], args[1]);
-        return "Message sent";
-      } else {
-        return "Invalid 'communicate' command format";
-      }
-    }
+    response = (this->*(commands[parser.getCommand()]))(message);
+    // if (parser.getCommand() == "communicate") {
+    //   auto args = parser.getArguments();
+    //   if (args.size() == 2) {
+    //     server->routeMessage(client_id, args[0], args[1]);
+    //     return "Message sent";
+    //   } else {
+    //     return "Invalid 'communicate' command format";
+    //   }
+    // }
     response = "Command: " + parser.getCommand() + " not implemented";
   } else {
     response = countLetters(message);
@@ -100,3 +101,5 @@ std::string ClientHandler::processMessage(const std::string& message) {
 
   return response;
 }
+
+const Server* ClientHandler::getServer() const { return server; }
