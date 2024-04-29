@@ -38,29 +38,26 @@ include_directories(${GTEST_INCLUDE_DIRS})
 add_executable(parser_test
     tests/parser_test.cpp
     )
-# add_executable(client_test
-#     tests/client_test.cpp
-#     client/client_app.cpp 
-#     client/client.cpp
-#     ${GTEST_LIBRARIES}
-#     )
+add_executable(client_test
+    tests/client_test.cpp
+    client/client_app.cpp 
+    client/client.cpp
+    )
 # add_executable(server_test
 #     tests/server_test.cpp
 #     server/client_handler.cpp 
 #     server/server.cpp 
-#     ${GTEST_LIBRARIES}
 #     )
 
-# target_link_libraries(client_test ${GTEST_LIBRARIES})
-# target_link_libraries(server_test ${GTEST_LIBRARIES} parser)
+target_link_libraries(client_test ${GTEST_MAIN_LIBRARIES})
 target_link_libraries(parser_test ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} parser)
 
 # Указываем выходную директорию для исполняемых файлов
-# set_target_properties(client_test server_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set_target_properties(client_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set_target_properties(parser_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Указываем стандарт языка
-# set_target_properties(client_test server_test PROPERTIES CXX_STANDARD 17)
 set_target_properties(parser_test PROPERTIES CXX_STANDARD 17)
+set_target_properties(client_test PROPERTIES CXX_STANDARD 17)
 
-add_custom_target(test COMMAND parser_test)
+# add_custom_target(test COMMAND server && parser_test && client_test)

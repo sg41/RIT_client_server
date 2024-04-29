@@ -31,8 +31,14 @@ debug_run: debug
 # Цель для запуска тестов
 test: CMAKE_FLAGS += -DCMAKE_CXX_CPPCHECK="cppcheck;--enable=all;--suppress=missingIncludeSystem;--suppress=unusedFunction;"
 test: debug
-	cd $(BUILD_DIR) && make test
+	build/parser_test
+	build/server 8080&
+	-build/client_test
+	sleep 1
+	ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
 
+coverage: debug
+	cd $(BUILD_DIR) && make coverage
 
 # Цель для очистки проекта (удаление директории build)
 clean:
