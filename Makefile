@@ -32,9 +32,10 @@ debug_run: debug
 test: CMAKE_FLAGS += -DCMAKE_CXX_CPPCHECK="cppcheck;--enable=all;--suppress=missingIncludeSystem;--suppress=unusedFunction;"
 test: debug
 	build/parser_test
-	build/server 8080&
+	build/server 8080 silent &
+	# sleep 1 second to allow server to start
+	sleep 1 
 	-build/client_test
-	sleep 1
 	ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
 
 coverage: debug

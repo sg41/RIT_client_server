@@ -2,19 +2,28 @@
 
 #include <gtest/gtest.h>
 
-// You might need to mock or stub certain functionalities for these tests,
-// such as network communication, to isolate the Client class behavior.
+#include <chrono>
+#include <thread>
 
-// Replace these with valid IP and port for your testing environment
+#include "server.h"
+
 const std::string kTestServerIP = "127.0.0.1";
 const int kTestServerPort = 8080;
 
 class ClientTest : public ::testing::Test {
- protected:
-  // Set up and tear down methods can be used for common initialization and
-  // cleanup tasks.
-  void SetUp() override {}
-  void TearDown() override {}
+  //  public:
+  //   Server server_{kTestServerPort, true};
+  //   std::thread server_thread_;
+
+  //   void SetUp() override {
+  //     if (server_.startServer()) {
+  //       server_thread_ = std::thread(&Server::acceptConnections, &server_);
+  //     };
+  //   }
+  //   void TearDown() override {
+  //     server_.stopServer();
+  //     server_thread_.join();
+  //   }
 };
 
 TEST_F(ClientTest, TestConnectSuccess) {
@@ -34,7 +43,6 @@ TEST_F(ClientTest, TestSendMessage) {
   ASSERT_TRUE(client.connectToServer());
 
   std::string message = "Test message";
-  // Assuming the server is able to receive the message
   EXPECT_TRUE(client.sendMessage(message));
 }
 
@@ -46,19 +54,26 @@ TEST_F(ClientTest, TestReceiveMessage) {
   ASSERT_TRUE(client.sendMessage(sent_message));
 
   std::string received_message;
-  // Assuming the server sends a response
   EXPECT_TRUE(client.receiveMessage(received_message));
-  EXPECT_EQ(sent_message,
-            received_message);  // Or compare with the expected response
+  EXPECT_EQ(
+      received_message,
+      "\nMessage |Test message\nT       |1\ne       |3\ns       |3\nt       "
+      "|1\n        |1\nm       |1\na       |1\ng       |1\n");
 }
 
 TEST_F(ClientTest, TestReconnect) {
   Client client(kTestServerIP, kTestServerPort);
   ASSERT_TRUE(client.connectToServer());
-
-  // Simulate a disconnect (e.g., by closing the server socket)
-  // ...
-
-  // Test if the client successfully reconnects within the allowed retries
   EXPECT_TRUE(client.reconnect());
+}
+
+TEST_F(ClientTest, TestCheckHaveMessage) {
+  Client client(kTestServerIP, kTestServerPort);
+  EXPECT_FALSE(client.checkHaveMessage());
+  ASSERT_TRUE(client.connectToServer());
+  EXPECT_FALSE(client.checkHaveMessage());
+  ASSERT_TRUE(client.sendMessage("Test message"));
+  std::this_thread::sleep_for(
+      std::chrono::milliseconds(100));  // Wait for server to respond
+  EXPECT_TRUE(client.checkHaveMessage());
 }

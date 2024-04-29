@@ -32,8 +32,9 @@ void ClientHandler::handleClient() {
     }
 
     // Process message and send response
-    std::cout << "Server received from " << client_id << ": " << message
-              << std::endl;
+    if (server->logEnabled())
+      std::cout << "Server received from " << client_id << ": " << message
+                << std::endl;
     std::string response = processMessage(message);
     sendMessage(response);
   }
@@ -41,7 +42,7 @@ void ClientHandler::handleClient() {
   // TODO check this section - handler remove itself?
   close(client_socket);
   server->removeClient(client_id);
-  std::cout << "Client disconnected." << std::endl;
+  if (server->logEnabled()) std::cout << "Client disconnected." << std::endl;
 }
 
 std::string ClientHandler::receiveMessage() {

@@ -49,7 +49,8 @@ bool Server::startServer() {
 }
 
 void Server::acceptConnections() {
-  while (true) {
+  is_running_ = true;
+  while (is_running_) {
     sockaddr_in client_address;
     socklen_t client_addr_len = sizeof(client_address);
     int client_socket = accept(
@@ -60,7 +61,7 @@ void Server::acceptConnections() {
                   << std::endl;
       continue;
     }
-    std::string client_id = "client_" + std::to_string(next_client_id++);
+    std::string client_id = "client_" + std::to_string(next_client_id_++);
     ClientHandler* client_handler =
         new ClientHandler(client_socket, client_id, this);
     {  // Add to the clients map - protected by a mutex
@@ -74,6 +75,8 @@ void Server::acceptConnections() {
     client_thread.detach();
   }
 }
+
+void Server::stopServer() { is_running_ = false; }
 
 void Server::removeClient(const std::string& client_id) {
   auto it = clients_.find(client_id);
