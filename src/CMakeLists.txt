@@ -33,9 +33,9 @@ target_link_libraries(client PUBLIC parser)
 
 # Тесты =====================================================================================
 find_package(GTest REQUIRED)
-# find_package(GMock REQUIRED)
+find_package(PythonInterp REQUIRED)
+
 include_directories(${GTEST_INCLUDE_DIRS})
-# include_directories(${GMOCK_INCLUDE_DIRS})
 
 add_executable(parser_test
     tests/parser_test.cpp
