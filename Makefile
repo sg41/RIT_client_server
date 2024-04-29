@@ -45,8 +45,8 @@ coverage: debug
 # Цель для очистки проекта (удаление директории build)
 clean:
 	rm -rf $(BUILD_DIR)
-	find . -name __pycache__ -type d  -exec rm -rf {} \;
-	find . -name .pytest_cache -type d  -exec rm -rf {} \;
+	find . -name "__pycache__" -exec rm -rf {} +
+	find . -name ".pytest_cache"  -exec rm -rf {} +
 
 # Цель по умолчанию - сборка проекта
 .DEFAULT_GOAL := build_all

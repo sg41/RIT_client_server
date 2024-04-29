@@ -10,21 +10,7 @@
 const std::string kTestServerIP = "127.0.0.1";
 const int kTestServerPort = 8080;
 
-class ClientTest : public ::testing::Test {
-  //  public:
-  //   Server server_{kTestServerPort, true};
-  //   std::thread server_thread_;
-
-  //   void SetUp() override {
-  //     if (server_.startServer()) {
-  //       server_thread_ = std::thread(&Server::acceptConnections, &server_);
-  //     };
-  //   }
-  //   void TearDown() override {
-  //     server_.stopServer();
-  //     server_thread_.join();
-  //   }
-};
+class ClientTest : public ::testing::Test {};
 
 TEST_F(ClientTest, TestConnectSuccess) {
   Client client(kTestServerIP, kTestServerPort);
@@ -33,8 +19,7 @@ TEST_F(ClientTest, TestConnectSuccess) {
 }
 
 TEST_F(ClientTest, TestConnectFailure) {
-  Client client("InvalidIP",
-                12345);  // Assuming this is an invalid IP/port combination
+  Client client("InvalidIP", 12345);
   EXPECT_FALSE(client.connectToServer());
 }
 

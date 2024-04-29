@@ -48,12 +48,6 @@ add_executable(client_test
     server/client_handler.cpp
     )
 
-# add_executable(server_test
-#     tests/server_test.cpp
-#     server/client_handler.cpp 
-#     server/server.cpp 
-#     )
-
 target_link_libraries(client_test ${GTEST_MAIN_LIBRARIES} parser)
 target_link_libraries(parser_test ${GTEST_MAIN_LIBRARIES} parser)
 
