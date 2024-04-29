@@ -14,7 +14,7 @@ class Command {
                               const std::string& message) = 0;
 
  protected:
-  int nargs;
+  int nargs = 0;
   std::string name_;
 };
 

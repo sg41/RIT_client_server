@@ -8,7 +8,7 @@
 
 class Server {
  public:
-  Server(int port, bool log = false);
+  explicit Server(int port, bool log = false);
   bool startServer();
   void acceptConnections();
   void removeClient(const std::string& client_id);

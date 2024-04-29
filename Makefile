@@ -1,7 +1,6 @@
 #TODO memory leak check
 #TODO tests
 #TODO coverage
-#TODO style check
 # Указываем переменные для удобства
 BUILD_DIR = build
 CMAKE_FLAGS = 
@@ -19,7 +18,7 @@ build_all: cmake-configure
 	cd $(BUILD_DIR) && make
 
 # Цель для сборки проекта с отладочным режимом
-debug: CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=Debug
+debug: CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_CPPCHECK="cppcheck;--enable=all;--suppress=missingIncludeSystem;--suppress=unusedFunction;"
 debug: cmake-configure
 	cd $(BUILD_DIR) && make
 
@@ -29,6 +28,10 @@ debug_run: debug
 	build/client 127.0.0.1 12345
 	sleep 1
 	ps -f | grep 'server 12345' | grep -v grep | awk '{print $$2}' | xargs kill
+
+test: debug
+	cd $(BUILD_DIR) && make test
+	parser_test
 
 # Цель для очистки проекта (удаление директории build)
 clean:
