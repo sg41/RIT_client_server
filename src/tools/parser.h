@@ -26,6 +26,7 @@ class Parser {
 
  private:
   void parse(const std::string& message);
+  std::string extractTagByMatch(const std::string& message, size_t& offset);
   std::string extractTag(const std::string& message, size_t& offset);
 
  private:

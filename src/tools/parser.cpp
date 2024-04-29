@@ -23,29 +23,35 @@ void Parser::parse(const std::string& message) {
   argument_ = message.substr(offset);
 }
 
-std::string Parser::extractTag(const std::string& message, size_t& offset) {
-  if (kTagStartLength == 0 || kTagEndLength == 0) {
-    auto best_match = kTagNotFound;
-    auto best_it = std::string::npos;
-    for (auto command : valid_commands_) {
-      auto it = message.find(command);
-      if (it != std::string::npos) {
-        if (it < best_it) {
-          best_it = it;
-          best_match = command;
-        }
+std::string Parser::extractTagByMatch(const std::string& message,
+                                      size_t& offset) {
+  auto best_match = kTagNotFound;
+  auto best_it = std::string::npos;
+  for (auto command : valid_commands_) {
+    auto it = message.find(command);
+    if (it != std::string::npos) {
+      if (it < best_it) {
+        best_it = it;
+        best_match = command;
       }
     }
-    offset = best_it + best_match.length();
-    return best_match;
+  }
+  offset = best_it + best_match.length();
+  return best_match;
+}
+
+std::string Parser::extractTag(const std::string& message, size_t& offset) {
+  // Empty delimiters section
+  if (kTagStartLength == 0 || kTagEndLength == 0) {
+    return extractTagByMatch(message, offset);
   }
 
+  // Extract tag surrounded by kTagStart and kTagEnd
   size_t start_pos = message.find(kTagStart, offset);
 
   if (start_pos == std::string::npos) {
     return kTagNotFound;
   }
-
   size_t end_pos = message.find(kTagEnd, start_pos + kTagStartLength);
 
   if (end_pos == std::string::npos) {
@@ -54,7 +60,7 @@ std::string Parser::extractTag(const std::string& message, size_t& offset) {
 
   offset = end_pos + kTagEndLength;
   return message.substr(start_pos + kTagStartLength,
-                        end_pos - start_pos - kTagEndLength);
+                        end_pos - (start_pos + kTagStartLength));
 }
 
 Parser::Parser(const std::string& message) { parse(message); }
