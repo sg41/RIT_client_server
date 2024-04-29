@@ -36,6 +36,7 @@ test: debug
 	# sleep 1 second to allow server to start
 	sleep 1 
 	-build/client_test
+	-pytest
 	ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
 
 coverage: debug
@@ -44,6 +45,7 @@ coverage: debug
 # Цель для очистки проекта (удаление директории build)
 clean:
 	rm -rf $(BUILD_DIR)
+	find . -name __pycache__ -type d  -exec rm -rf {} \;
 
 # Цель по умолчанию - сборка проекта
 .DEFAULT_GOAL := build_all
