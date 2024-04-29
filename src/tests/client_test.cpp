@@ -38,6 +38,8 @@ TEST_F(ClientTest, TestReceiveMessage) {
   std::string sent_message = "Test message";
   ASSERT_TRUE(client.sendMessage(sent_message));
 
+  std::this_thread::sleep_for(
+      std::chrono::milliseconds(100));  // Wait for server to respond
   std::string received_message;
   EXPECT_TRUE(client.receiveMessage(received_message));
   EXPECT_EQ(

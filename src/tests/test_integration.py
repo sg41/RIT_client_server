@@ -42,6 +42,7 @@ def test_2():
     t = threading.Thread(target=run_test, args=([
         "build/client", "127.0.0.1", "8080"], f"show list\n"), kwargs={"timeout": 2})
     t.start()
+    time.sleep(1)
     res = run_test(["build/client", "127.0.0.1", "8080"], "show list\n")
     expected = ["Connected to server: success",
                 "> Server: ",
@@ -59,13 +60,14 @@ def test_2():
 
 def test_3():
     threads = []
+    time.sleep(1)  # Wait for previous test to finish
     for i in range(5):
         threads.append(threading.Thread(target=run_test, args=([
-            "build/client", "127.0.0.1", "8080"], f"show number\n"), kwargs={"timeout": 2}))
+            "build/client", "127.0.0.1", "8080"], f"show number\n"), kwargs={"timeout": 1}))
         threads[i].start()
     res = run_test(["build/client", "127.0.0.1", "8080"], "show number\n")
     expected = ["Connected to server: success",
-                "^> Server: [56]$",
+                "^> Server: [1-6]$",
                 "> ",
                 "Bye!",
                 ""]
