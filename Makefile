@@ -1,4 +1,3 @@
-#TODO memory leak check
 #TODO coverage
 # Указываем переменные для удобства
 BUILD_DIR = build
@@ -45,11 +44,7 @@ test: debug
 	sleep 1 
 	-build/client_test
 	-$(PYTEST)
-	@# echo "shutdown" | build/client 127.0.0.1 8080 > /dev/null 2>&1
 	@ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
-
-coverage: debug
-	cd $(BUILD_DIR) && make coverage
 
 leaks: debug
 	$(LEAKS) build/server 8080 silent&
