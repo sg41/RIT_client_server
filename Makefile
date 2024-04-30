@@ -3,6 +3,12 @@
 # Указываем переменные для удобства
 BUILD_DIR = build
 CMAKE_FLAGS = 
+UNAME:=$(shell uname)
+ifeq ($(UNAME), Darwin)
+	PYTEST = python3 -m pytest
+else
+	PYTEST = pytest
+endif
 
 # Цель для создания директории сборки
 $(BUILD_DIR):
@@ -32,11 +38,11 @@ debug_run: debug
 test: CMAKE_FLAGS += -DCMAKE_CXX_CPPCHECK="cppcheck;--enable=all;--suppress=missingIncludeSystem;--suppress=unusedFunction;"
 test: debug
 	build/parser_test
-	build/server 8080 silent &
+	build/server 8080 &
 	# sleep 1 second to allow server to start
 	sleep 1 
 	-build/client_test
-	-pytest
+	-$(PYTEST)
 	ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
 
 coverage: debug

@@ -9,11 +9,11 @@ const int kBufferSize = 1024;
 class Client {
  public:
   Client(const std::string& ip, int port, bool log = false);
-  virtual bool connectToServer();
-  virtual bool checkHaveMessage();
-  virtual bool sendMessage(const std::string& message);
-  virtual bool receiveMessage(std::string& message);
-  virtual bool reconnect();
+  bool connectToServer();
+  bool checkHaveMessage();
+  bool sendMessage(const std::string& message);
+  bool receiveMessage(std::string& message);
+  bool reconnect();
   ~Client();
 
  private:

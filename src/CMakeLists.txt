@@ -33,7 +33,8 @@ target_link_libraries(client PUBLIC parser)
 
 # Тесты =====================================================================================
 find_package(GTest REQUIRED)
-find_package(PythonInterp REQUIRED)
+find_package(Python REQUIRED)
+find_package(Pytest)
 
 include_directories(${GTEST_INCLUDE_DIRS})
 
