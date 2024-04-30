@@ -34,7 +34,7 @@ ClientApp::Event ClientApp::eventLoop() {
   };
   if (!input_thread_.valid())
     input_thread_ = std::async(std::launch::async, readUserInput);
-  while (true) {
+  while (running_) {
     if (client_.checkHaveMessage()) {
       return Event::kServerMessage;
     }
@@ -44,6 +44,7 @@ ClientApp::Event ClientApp::eventLoop() {
       return Event::kUserInput;
     }
   }
+  return Event::kNoEvent;
 }
 
 bool ClientApp::receiveServerMessage(std::string& response) {

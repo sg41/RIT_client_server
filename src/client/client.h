@@ -6,8 +6,21 @@ const int kMaxRetries = 3;
 const int kRetryTimeout = 3;
 const int kBufferSize = 1024;
 
+/**
+ * @brief The Client class represents a client that connects to a server.
+ *
+ * It provides methods for connecting to the server, sending and receiving
+ * messages, and handling errors.
+ */
 class Client {
  public:
+  /**
+   * @brief Constructor for Client.
+   *
+   * @param ip The IP address of the server to connect to.
+   * @param port The port of the server to connect to.
+   * @param log Flag indicating whether logging is enabled.
+   */
   Client(const std::string& ip, int port, bool log = false);
   /**
    * Connects to the server. No retries are done in case of failure.
