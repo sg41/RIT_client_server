@@ -55,7 +55,7 @@ void Server::acceptConnections() {
     FD_ZERO(&read_fds);
     FD_SET(server_socket_, &read_fds);
     struct timeval timeout;
-    timeout.tv_sec = 0;  // Adjust the timeout value as needed
+    timeout.tv_sec = 0;
     timeout.tv_usec = 100;
     int ret = select(server_socket_ + 1, &read_fds, nullptr, nullptr, &timeout);
     if (ret < 0) {
@@ -66,12 +66,12 @@ void Server::acceptConnections() {
       // Timeout occurred, continue to the next iteration
       continue;
     }
-    acceptNewConnection();
+    acceptNewClient();
   }
   if (log_) std::cout << "Server stopped." << std::endl;
 }
 
-void Server::acceptNewConnection() {
+void Server::acceptNewClient() {
   sockaddr_in client_address;
   socklen_t client_addr_len = sizeof(client_address);
   int client_socket = accept(
@@ -83,24 +83,27 @@ void Server::acceptNewConnection() {
                 << std::endl;
     return;
   }
-  std::string client_id = "client_" + std::to_string(next_client_id_++);
-  // ClientHandler* client_handler =
-  //     new ClientHandler(client_socket, client_id, this);
+
+  std::string client_id;
+
   {  // Add to the clients map - protected by a mutex
+    client_id = "client_" + std::to_string(next_client_id_++);
     std::lock_guard<std::mutex> lock(clients_mutex_);
     clients_[client_id] =
         std::make_shared<ClientHandler>(client_socket, client_id, this);
+
+    // std::thread client_thread(&ClientHandler::handleClient,
+    //                           clients_[client_id]);
+    // client_thread.detach();
+    client_threads_.push_back(
+        std::thread(&ClientHandler::handleClient, clients_[client_id]));
   }
   if (log_)
     std::cout << "New client connected with ID: " << client_id << std::endl;
-
-  std::thread client_thread(&ClientHandler::handleClient, clients_[client_id]);
-  client_thread.detach();
 }
 
 void Server::shutdown() {
   std::lock_guard<std::mutex> lock(clients_mutex_);
-  if (server_socket_ >= 0) close(server_socket_);  // close server_socket_
   is_running_ = false;
 }
 
@@ -108,7 +111,6 @@ void Server::removeClient(const std::string& client_id) {
   auto it = clients_.find(client_id);
   if (it != clients_.end()) {
     std::lock_guard<std::mutex> lock(clients_mutex_);
-    // delete it->second;
     clients_.erase(it);
   }
 }
@@ -140,7 +142,7 @@ Server::~Server() {
   if (server_socket_ >= 0) {
     close(server_socket_);
   }
-  // for (auto it = clients_.begin(); it != clients_.end(); ++it) {
-  //   delete it->second;
-  // }
+  for (auto& thread : client_threads_) {
+    if (thread.joinable()) thread.join();
+  }
 }

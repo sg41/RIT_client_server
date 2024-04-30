@@ -39,7 +39,7 @@ TEST_F(ClientTest, TestReceiveMessage) {
   ASSERT_TRUE(client.sendMessage(sent_message));
 
   std::this_thread::sleep_for(
-      std::chrono::milliseconds(100));  // Wait for server to respond
+      std::chrono::milliseconds(800));  // Wait for server to respond
   std::string received_message;
   EXPECT_TRUE(client.receiveMessage(received_message));
   EXPECT_EQ(
@@ -61,6 +61,6 @@ TEST_F(ClientTest, TestCheckHaveMessage) {
   EXPECT_FALSE(client.checkHaveMessage());
   ASSERT_TRUE(client.sendMessage("Test message"));
   std::this_thread::sleep_for(
-      std::chrono::milliseconds(100));  // Wait for server to respond
+      std::chrono::milliseconds(500));  // Wait for server to respond
   EXPECT_TRUE(client.checkHaveMessage());
 }

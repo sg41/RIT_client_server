@@ -4,6 +4,8 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
+#include <vector>
 
 #include "client_handler.h"
 
@@ -12,7 +14,7 @@ class Server {
   explicit Server(int port, bool log = false);
   bool startServer();
   void acceptConnections();
-  void acceptNewConnection();
+  void acceptNewClient();
   void shutdown();
   void removeClient(const std::string& client_id);
   bool routeMessage(const std::string& sender_id,
@@ -32,5 +34,7 @@ class Server {
   bool log_ = false;
   std::map<std::string, std::shared_ptr<ClientHandler>> clients_;
   unsigned next_client_id_ = 1;  // To generate unique IDs
+  std::vector<std::thread> client_threads_;
 };
+
 #endif  // SERVER_SERVER_H
