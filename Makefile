@@ -53,7 +53,11 @@ leaks: debug
 	-$(LEAKS) build/client_test
 	echo "shutdown" | build/client 127.0.0.1 8080 > /dev/null 2>&1
 
-
+coverage: debug
+	build/server 8080 silent&
+	cd $(BUILD_DIR) && make coverage
+	@ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
+	open build/src/coverage/index.html
 # Цель для очистки проекта (удаление директории build)
 clean:
 	rm -rf $(BUILD_DIR)

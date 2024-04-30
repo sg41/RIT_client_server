@@ -63,7 +63,7 @@ include(CodeCoverage.cmake)
 append_coverage_compiler_flags()
 setup_target_for_coverage_gcovr_html(
     NAME coverage                 
-        EXECUTABLE  clent_test  
+        EXECUTABLE  client_test  
         
         DEPENDENCIES  
         client_test       
