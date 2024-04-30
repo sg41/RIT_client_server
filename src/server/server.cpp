@@ -50,31 +50,51 @@ bool Server::startServer() {
 
 void Server::acceptConnections() {
   is_running_ = true;
+  fd_set read_fds;
   while (isRunning()) {
-    sockaddr_in client_address;
-    socklen_t client_addr_len = sizeof(client_address);
-    int client_socket = accept(
-        server_socket_, (struct sockaddr*)&client_address, &client_addr_len);
-    if (client_socket < 0) {
+    FD_ZERO(&read_fds);
+    FD_SET(server_socket_, &read_fds);
+    struct timeval timeout;
+    timeout.tv_sec = 0;  // Adjust the timeout value as needed
+    timeout.tv_usec = 100;
+    int ret = select(server_socket_ + 1, &read_fds, nullptr, nullptr, &timeout);
+    if (ret < 0) {
       if (log_)
-        std::cerr << "Error accepting connection: " << strerror(errno)
-                  << std::endl;
+        std::cerr << "Error in select: " << strerror(errno) << std::endl;
+      continue;
+    } else if (ret == 0) {
+      // Timeout occurred, continue to the next iteration
       continue;
     }
-    std::string client_id = "client_" + std::to_string(next_client_id_++);
-    ClientHandler* client_handler =
-        new ClientHandler(client_socket, client_id, this);
-    {  // Add to the clients map - protected by a mutex
-      std::lock_guard<std::mutex> lock(clients_mutex_);
-      clients_[client_id] = client_handler;
-    }
-    if (log_)
-      std::cout << "New client connected with ID: " << client_id << std::endl;
-
-    std::thread client_thread(&ClientHandler::handleClient, client_handler);
-    client_thread.detach();
+    acceptNewConnection();
   }
   if (log_) std::cout << "Server stopped." << std::endl;
+}
+
+void Server::acceptNewConnection() {
+  sockaddr_in client_address;
+  socklen_t client_addr_len = sizeof(client_address);
+  int client_socket = accept(
+      server_socket_, reinterpret_cast<struct sockaddr*>(&client_address),
+      &client_addr_len);
+  if (client_socket < 0) {
+    if (log_)
+      std::cerr << "Error accepting connection: " << strerror(errno)
+                << std::endl;
+    return;
+  }
+  std::string client_id = "client_" + std::to_string(next_client_id_++);
+  ClientHandler* client_handler =
+      new ClientHandler(client_socket, client_id, this);
+  {  // Add to the clients map - protected by a mutex
+    std::lock_guard<std::mutex> lock(clients_mutex_);
+    clients_[client_id] = client_handler;
+  }
+  if (log_)
+    std::cout << "New client connected with ID: " << client_id << std::endl;
+
+  std::thread client_thread(&ClientHandler::handleClient, client_handler);
+  client_thread.detach();
 }
 
 void Server::shutdown() {

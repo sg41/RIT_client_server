@@ -11,6 +11,7 @@ class Server {
   explicit Server(int port, bool log = false);
   bool startServer();
   void acceptConnections();
+  void acceptNewConnection();
   void shutdown();
   void removeClient(const std::string& client_id);
   bool routeMessage(const std::string& sender_id,

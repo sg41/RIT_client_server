@@ -44,7 +44,7 @@ test: debug
 	-build/client_test
 	-$(PYTEST)
 	echo "shutdown" | build/client 127.0.0.1 8080
-	# ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
+	ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
 
 coverage: debug
 	cd $(BUILD_DIR) && make coverage
@@ -54,6 +54,8 @@ leaks: debug
 	# sleep 1 second to allow server to start
 	sleep 1
 	-valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes build/client_test
+	echo "shutdown" | build/client 127.0.0.1 8080
+
 
 # Цель для очистки проекта (удаление директории build)
 clean:
