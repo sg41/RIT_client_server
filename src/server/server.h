@@ -11,7 +11,7 @@ class Server {
   explicit Server(int port, bool log = false);
   bool startServer();
   void acceptConnections();
-  void stopServer();
+  void shutdown();
   void removeClient(const std::string& client_id);
   bool routeMessage(const std::string& sender_id,
                     const std::string& receiver_id, const std::string& message);
@@ -19,6 +19,7 @@ class Server {
   ~Server();
   std::mutex& getClientsMutex() { return clients_mutex_; }
   bool logEnabled() const { return log_; }
+  bool isRunning() const { return is_running_; }
 
  private:
   bool is_running_ = false;

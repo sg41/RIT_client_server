@@ -25,7 +25,7 @@ ClientHandler::~ClientHandler() {
 std::string ClientHandler::getClientID() const { return client_id; }
 
 void ClientHandler::handleClient() {
-  while (true) {
+  while (server->isRunning()) {
     std::string message = receiveMessage();
     if (message.empty()) {
       break;  // Client disconnected
@@ -82,7 +82,9 @@ std::string ClientHandler::processMessage(const std::string& message) {
   // commands["show"] = std::make_unique<ShowCommand>();
   std::map<std::string, std::string (ClientHandler::*)(const std::string&)>
       commands{{"send", &ClientHandler::sendMessageToClient},
-               {"show", &ClientHandler::showConnections}};
+               {"show", &ClientHandler::showConnections},
+               {"shutdown", &ClientHandler::shutdownServer}};
+
   Parser parser(message, commands, "", "");
   if (!parser.hasCommand()) {
     return countLetters(message);
@@ -131,3 +133,9 @@ std::string ClientHandler::sendMessageToClient(const std::string& message) {
     return "Invalid command format";
   }
 };
+
+std::string ClientHandler::shutdownServer(
+    [[maybe_unused]] const std::string& message) {
+  server->shutdown();
+  return "Server shut down";
+}

@@ -50,7 +50,7 @@ bool Server::startServer() {
 
 void Server::acceptConnections() {
   is_running_ = true;
-  while (is_running_) {
+  while (isRunning()) {
     sockaddr_in client_address;
     socklen_t client_addr_len = sizeof(client_address);
     int client_socket = accept(
@@ -74,9 +74,14 @@ void Server::acceptConnections() {
     std::thread client_thread(&ClientHandler::handleClient, client_handler);
     client_thread.detach();
   }
+  if (log_) std::cout << "Server stopped." << std::endl;
 }
 
-void Server::stopServer() { is_running_ = false; }
+void Server::shutdown() {
+  std::lock_guard<std::mutex> lock(clients_mutex_);
+  if (server_socket_ >= 0) close(server_socket_);  // close server_socket_
+  is_running_ = false;
+}
 
 void Server::removeClient(const std::string& client_id) {
   auto it = clients_.find(client_id);

@@ -20,6 +20,7 @@ class ClientHandler {
   std::string sendMessageToClient(const std::string& message);
   std::string countLetters(const std::string& message);
   std::string showConnections(const std::string& message);
+  std::string shutdownServer(const std::string& message);
 
  private:
   int client_socket = -1;  // To store the client socket
