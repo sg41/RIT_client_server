@@ -13,10 +13,10 @@ int main(int argc, char** argv) {
   if (argc > 2) {
     if (std::string(argv[2]) == "silent") {
       log = false;
+    } else {
+      std::cout << "Usage: " << argv[0] << " <port> [silent]" << std::endl;
+      return 1;
     }
-  } else {
-    std::cout << "Usage: " << argv[0] << " <port> [silent]" << std::endl;
-    return 1;
   }
 
   Server server(port, log);

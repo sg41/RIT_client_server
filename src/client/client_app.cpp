@@ -12,6 +12,8 @@
 #include <string>
 #include <thread>
 
+#include "parser.h"
+
 #define ENABLE_OUTPUT 1
 
 ClientApp::ClientApp(const std::string& server_ip, int server_port, bool log)
@@ -69,6 +71,22 @@ bool ClientApp::talkToServer(std::string& response) {
   return !got_error;
 }
 
+void ClientApp::exit() { running_ = false; }
+
+void ClientApp::help() {
+  std::cout << "Available commands:" << std::endl;
+  std::cout << "  Client side:" << std::endl;
+  std::cout << "    exit|quit|!q - exit the program" << std::endl;
+  std::cout << "    help|? - display this help" << std::endl;
+  std::cout << "  Server side:" << std::endl;
+  std::cout << "    show list - show the list of connected clients"
+            << std::endl;
+  std::cout << "    show number|count - show the number of connected clients"
+            << std::endl;
+  std::cout << "    send <client_ID> message - send a message to the client"
+            << std::endl;
+  std::cout << "    shutdown - shutdown the server" << std::endl;
+}
 int ClientApp::run() {
   running_ = true;
   int error_code = 0;
@@ -79,6 +97,8 @@ int ClientApp::run() {
 
     // Check if the client has a message from server or from user input
     Event event = eventLoop();
+
+    Parser parser(message_, valid_commands_, "", "");
 
     switch (event) {
       case Event::kServerMessage:
@@ -91,12 +111,15 @@ int ClientApp::run() {
         }
         break;
       case Event::kUserInput:  // Got user message block:
-        if (message_ == "exit" || std::cin.eof()) {
+        if (std::cin.eof()) {
           running_ = false;
           break;
         }
-
         if (message_ == "") {
+          break;
+        }
+        if (parser.hasCommand()) {  // Execute client-side commands
+          (this->*valid_commands_[parser.getCommand()])();
           break;
         }
         if (!talkToServer(response)) {

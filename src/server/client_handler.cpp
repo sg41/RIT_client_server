@@ -32,7 +32,7 @@ void ClientHandler::handleClient() {
     }
 
     // Process message and send response
-    if (server->logEnabled())
+    if (server->isLogEnabled())
       std::cout << "Server received from " << client_id << ": " << message
                 << std::endl;
     std::string response = processMessage(message);
@@ -40,7 +40,7 @@ void ClientHandler::handleClient() {
   }
 
   server->removeClient(client_id);
-  if (server->logEnabled()) std::cout << "Client disconnected." << std::endl;
+  if (server->isLogEnabled()) std::cout << "Client disconnected." << std::endl;
 }
 
 std::string ClientHandler::receiveMessage() {
@@ -105,7 +105,7 @@ std::string ClientHandler::showConnections(const std::string& message) {
     return "Invalid command format";
   }
 
-  std::lock_guard<std::mutex> lock(server->getClientsMutex());
+  std::lock_guard<std::mutex> lock(server->getServerMutex());
   auto clients = server->getClients();
   if (parser.getCommand() == "list") {
     std::string response = "\nClient ID:\n";

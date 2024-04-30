@@ -87,8 +87,8 @@ void Server::acceptNewClient() {
   std::string client_id;
 
   {  // Add to the clients map - protected by a mutex
-    client_id = "client_" + std::to_string(next_client_id_++);
     std::lock_guard<std::mutex> lock(server_mutex_);
+    client_id = "client_" + std::to_string(next_client_id_++);
     clients_[client_id] =
         std::make_shared<ClientHandler>(client_socket, client_id, this);
     client_threads_.push_back(
