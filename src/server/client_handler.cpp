@@ -123,11 +123,12 @@ std::string ClientHandler::showConnections(const std::string& message) {
 std::string ClientHandler::sendMessageToClient(const std::string& message) {
   // Parser parser(message, {}, "\"", "\"");
   Parser parser(message);
+
   if (parser.hasCommand()) {
-    return server->routeMessage(client_id, parser.getCommand(),
-                                parser.getArgument())
+    auto receiver_id = parser.getCommand();
+    return server->routeMessage(client_id, receiver_id, parser.getArgument())
                // if message sent to itself - no extra answer needed
-               ? (client_id == parser.getCommand() ? "" : "Message sent")
+               ? (client_id == receiver_id ? "" : "Message sent")
                : "Error";
   } else {
     return "Invalid command format";
