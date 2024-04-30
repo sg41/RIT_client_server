@@ -59,3 +59,12 @@ set_target_properties(parser_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BI
 set_target_properties(parser_test PROPERTIES CXX_STANDARD 17)
 set_target_properties(client_test PROPERTIES CXX_STANDARD 17)
 
+include(CodeCoverage.cmake)
+append_coverage_compiler_flags()
+setup_target_for_coverage_gcovr_html(
+    NAME coverage                 
+        EXECUTABLE  clent_test  
+        
+        DEPENDENCIES  
+        client_test       
+)
