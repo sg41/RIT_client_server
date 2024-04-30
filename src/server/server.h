@@ -1,6 +1,7 @@
 #ifndef SERVER_SERVER_H
 #define SERVER_SERVER_H
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 
@@ -16,7 +17,8 @@ class Server {
   void removeClient(const std::string& client_id);
   bool routeMessage(const std::string& sender_id,
                     const std::string& receiver_id, const std::string& message);
-  const std::map<std::string, ClientHandler*>& getClients() const;
+  const std::map<std::string, std::shared_ptr<ClientHandler>>& getClients()
+      const;
   ~Server();
   std::mutex& getClientsMutex() { return clients_mutex_; }
   bool logEnabled() const { return log_; }
@@ -28,7 +30,7 @@ class Server {
   int server_socket_ = -1;
   int port_ = 8080;  // Default port
   bool log_ = false;
-  std::map<std::string, ClientHandler*> clients_;
+  std::map<std::string, std::shared_ptr<ClientHandler>> clients_;
   unsigned next_client_id_ = 1;  // To generate unique IDs
 };
 #endif  // SERVER_SERVER_H

@@ -44,7 +44,7 @@ test: debug
 	-build/client_test
 	-$(PYTEST)
 	echo "shutdown" | build/client 127.0.0.1 8080
-	ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
+	# ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
 
 coverage: debug
 	cd $(BUILD_DIR) && make coverage

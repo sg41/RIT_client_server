@@ -84,16 +84,17 @@ void Server::acceptNewConnection() {
     return;
   }
   std::string client_id = "client_" + std::to_string(next_client_id_++);
-  ClientHandler* client_handler =
-      new ClientHandler(client_socket, client_id, this);
+  // ClientHandler* client_handler =
+  //     new ClientHandler(client_socket, client_id, this);
   {  // Add to the clients map - protected by a mutex
     std::lock_guard<std::mutex> lock(clients_mutex_);
-    clients_[client_id] = client_handler;
+    clients_[client_id] =
+        std::make_shared<ClientHandler>(client_socket, client_id, this);
   }
   if (log_)
     std::cout << "New client connected with ID: " << client_id << std::endl;
 
-  std::thread client_thread(&ClientHandler::handleClient, client_handler);
+  std::thread client_thread(&ClientHandler::handleClient, clients_[client_id]);
   client_thread.detach();
 }
 
@@ -107,7 +108,7 @@ void Server::removeClient(const std::string& client_id) {
   auto it = clients_.find(client_id);
   if (it != clients_.end()) {
     std::lock_guard<std::mutex> lock(clients_mutex_);
-    delete it->second;
+    // delete it->second;
     clients_.erase(it);
   }
 }
@@ -130,7 +131,8 @@ bool Server::routeMessage(const std::string& sender_id,
   return message_sent;
 }
 
-const std::map<std::string, ClientHandler*>& Server::getClients() const {
+const std::map<std::string, std::shared_ptr<ClientHandler>>&
+Server::getClients() const {
   return clients_;
 }
 
@@ -138,7 +140,7 @@ Server::~Server() {
   if (server_socket_ >= 0) {
     close(server_socket_);
   }
-  for (auto it = clients_.begin(); it != clients_.end(); ++it) {
-    delete it->second;
-  }
+  // for (auto it = clients_.begin(); it != clients_.end(); ++it) {
+  //   delete it->second;
+  // }
 }
