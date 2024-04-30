@@ -88,13 +88,9 @@ void Server::acceptNewClient() {
 
   {  // Add to the clients map - protected by a mutex
     client_id = "client_" + std::to_string(next_client_id_++);
-    std::lock_guard<std::mutex> lock(clients_mutex_);
+    std::lock_guard<std::mutex> lock(server_mutex_);
     clients_[client_id] =
         std::make_shared<ClientHandler>(client_socket, client_id, this);
-
-    // std::thread client_thread(&ClientHandler::handleClient,
-    //                           clients_[client_id]);
-    // client_thread.detach();
     client_threads_.push_back(
         std::thread(&ClientHandler::handleClient, clients_[client_id]));
   }
@@ -103,14 +99,14 @@ void Server::acceptNewClient() {
 }
 
 void Server::shutdown() {
-  std::lock_guard<std::mutex> lock(clients_mutex_);
+  std::lock_guard<std::mutex> lock(server_mutex_);
   is_running_ = false;
 }
 
 void Server::removeClient(const std::string& client_id) {
+  std::lock_guard<std::mutex> lock(server_mutex_);
   auto it = clients_.find(client_id);
   if (it != clients_.end()) {
-    std::lock_guard<std::mutex> lock(clients_mutex_);
     clients_.erase(it);
   }
 }
@@ -124,7 +120,6 @@ bool Server::routeMessage(const std::string& sender_id,
     it->second->sendMessage(sender_id + ": " + message);
     message_sent = true;
   } else {
-    // Handle the case where the recipient is not found
     message_sent = false;
     if (log_)
       std::cout << "Client with ID " << receiver_id << " not found."

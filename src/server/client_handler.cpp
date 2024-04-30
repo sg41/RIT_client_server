@@ -39,8 +39,6 @@ void ClientHandler::handleClient() {
     sendMessage(response);
   }
 
-  // TODO check this section - handler remove itself?
-  close(client_socket);
   server->removeClient(client_id);
   if (server->logEnabled()) std::cout << "Client disconnected." << std::endl;
 }
@@ -121,7 +119,7 @@ std::string ClientHandler::showConnections(const std::string& message) {
   return "Invalid command format";
 }
 std::string ClientHandler::sendMessageToClient(const std::string& message) {
-  // Parser parser(message, {}, "\"", "\"");
+  // Get the client ID from the message in "<client_id> message" format
   Parser parser(message);
 
   if (parser.hasCommand()) {

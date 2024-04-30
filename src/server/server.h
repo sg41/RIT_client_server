@@ -22,13 +22,13 @@ class Server {
   const std::map<std::string, std::shared_ptr<ClientHandler>>& getClients()
       const;
   ~Server();
-  std::mutex& getClientsMutex() { return clients_mutex_; }
+  std::mutex& getClientsMutex() { return server_mutex_; }
   bool logEnabled() const { return log_; }
   bool isRunning() const { return is_running_; }
 
  private:
   bool is_running_ = false;
-  std::mutex clients_mutex_;
+  std::mutex server_mutex_;
   int server_socket_ = -1;
   int port_ = 8080;  // Default port
   bool log_ = false;

@@ -1,3 +1,13 @@
+/**
+ * @file command.h
+ * @author sg41@mail.ru
+ * @brief "Command" pattern for future development of server
+ * @version 0.1
+ * @date 2024-04-30
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #ifndef SERVER_COMMAND_H
 #define SERVER_COMMAND_H
 #include <stdarg.h>
