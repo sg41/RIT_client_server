@@ -1,7 +1,7 @@
 /**
  * @file client.cpp
  * @author Sergey Gorbatenko (sg41@mail.ru)
- * @brief
+ * @brief Implementation of Client class
  * @version 0.1
  * @date 2024-04-14
  *

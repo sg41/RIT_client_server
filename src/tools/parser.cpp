@@ -1,3 +1,13 @@
+/**
+ * @file parser.cpp
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Parser class implementation
+ * @version 0.1
+ * @date 2024-05-01
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #include "parser.h"
 
 void Parser::parse(const std::string& message) {

@@ -1,3 +1,13 @@
+/**
+ * @file client_handler.cpp
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Client handler class implementation
+ * @version 0.1
+ * @date 2024-05-01
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #include "client_handler.h"
 
 #include <arpa/inet.h>

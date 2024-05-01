@@ -1,3 +1,13 @@
+/**
+ * @file console_client.cpp
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Simple console client application
+ * @version 0.1
+ * @date 2024-05-01
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 #include <iostream>
 
 #include "client_app.h"

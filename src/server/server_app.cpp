@@ -1,3 +1,13 @@
+/**
+ * @file server_app.cpp
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Simple server application using Server class
+ * @version 0.1
+ * @date 2024-05-01
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #include <iostream>
 
 #include "server.h"

@@ -1,3 +1,13 @@
+/**
+ * @file server.h
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Server class for TCP/IP communication
+ * @version 0.1
+ * @date 2024-05-01
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #ifndef SERVER_SERVER_H
 #define SERVER_SERVER_H
 #include <map>
@@ -9,6 +19,24 @@
 
 #include "client_handler.h"
 
+/**
+ * The Server class represents a TCP/IP server that listens for incoming
+ * connections and handles them asynchronously. It maintains a map of
+ * connected clients and allows for sending messages between clients.
+ *
+ * This class provides methods for starting the server, accepting incoming
+ * connections, and handling client messages. It also allows for removing
+ * clients and routing messages between clients.
+ *
+ * Example Usage:
+ *
+ * Server server(8080, true); // Create a server instance on port 8080 with
+ * logging enabled
+ * server.startServer(); // Start the server
+ *
+ * Note: Private variables are not documented individually.
+ *
+ */
 class Server {
  public:
   explicit Server(int port, bool log = false);

@@ -1,3 +1,13 @@
+/**
+ * @file client_handler.h
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Client handler class for Server class
+ * @version 0.1
+ * @date 2024-05-01
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #ifndef SERVER_CLIENT_HANDLER_H
 #define SERVER_CLIENT_HANDLER_H
 #include <unordered_map>
@@ -5,6 +15,27 @@
 #include "parser.h"
 class Server;
 
+/**
+ * The `ClientHandler` class is responsible for handling client interactions
+ * with the server. It maintains a connection with a specific client and
+ * provides methods to receive and send messages to/from the client.
+ *
+ * The class takes in the client's socket, unique client ID, and a reference to
+ * the server. It provides various message handling methods, such as
+ * `processMessage()`, `sendMessage()`, and `sendMessageToClient()`, which
+ * parse incoming messages and execute corresponding commands.
+ *
+ * The class also provides methods to count letter occurrences in a message
+ * (`countLetters()`) and display the number of connected clients or a list of
+ * their IDs (`showConnections()`).
+ *
+ * Lastly, it provides a method to shut down the server (`shutdownServer()`)
+ * when the client sends a specific command.
+ *
+ * This class is designed to be used in conjunction with the `Server` class,
+ * and should not be used standalone.
+ *
+ */
 class ClientHandler {
  public:
   ClientHandler(int socket, const std::string& id, Server* server);

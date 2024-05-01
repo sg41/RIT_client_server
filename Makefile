@@ -1,8 +1,10 @@
 #TODO coverage
 # Указываем переменные для удобства
 BUILD_DIR = build
+DOCS_DIR = docs
 CMAKE_FLAGS = 
 UNAME:=$(shell uname)
+SOURCES = $(shell find . -name "*.cpp") $(shell find . -name "*.h")
 ifeq ($(UNAME), Darwin)
 	PYTEST = python3 -m pytest
 	LEAKS = leaks --atExit --
@@ -58,11 +60,16 @@ coverage: debug
 	cd $(BUILD_DIR) && make coverage
 	@ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
 	open build/src/coverage/index.html
+
+docs: doxygen.conf $(SOURCES) README.md
+	doxygen doxygen.conf
+
 # Цель для очистки проекта (удаление директории build)
 clean:
 	rm -rf $(BUILD_DIR)
 	find . -name "__pycache__" -exec rm -rf {} +
 	find . -name ".pytest_cache"  -exec rm -rf {} +
+	rm -rf $(DOCS_DIR)
 
 # Цель по умолчанию - сборка проекта
 .DEFAULT_GOAL := build_all

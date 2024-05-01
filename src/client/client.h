@@ -1,3 +1,13 @@
+/**
+ * @file client.h
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Client class declaration
+ * @version 0.1
+ * @date 2024-05-01
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 #ifndef CLIENT_CLIENT_H
 #define CLIENT_CLIENT_H
 #include <string>

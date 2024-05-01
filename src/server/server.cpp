@@ -1,3 +1,13 @@
+/**
+ * @file server.cpp
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Implementation of Server class
+ * @version 0.1
+ * @date 2024-05-01
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #include "server.h"
 
 #include <arpa/inet.h>

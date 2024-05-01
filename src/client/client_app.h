@@ -1,3 +1,13 @@
+/**
+ * @file client_app.h
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Client app class header
+ * @version 0.1
+ * @date 2024-05-01
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #ifndef CLIENT_CLIENT_APP_H
 #define CLIENT_CLIENT_APP_H
 #include <future>
