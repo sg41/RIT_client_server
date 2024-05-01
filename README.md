@@ -42,18 +42,20 @@ This project is a work-in-progress implementation of a basic client-server appli
 
 **Building with Make:**
 
+>note: all commands should be executed from the project root directory
+
 1. Clone the repository.
 2. Navigate to the project directory.
 3. Build the project: `make`
 
 **Running the Server:**
 
-1. Execute the server binary with the desired port: `./server <port> [silent]`
+1. Execute the server binary with the desired port: `build/server <port> [silent]`
     * The `silent` option disables server console output.
 
 **Running the Client:**
 
-1. In a separate terminal, run the client binary: `./client <server_ip> <server_port>`
+1. In a separate terminal, run the client binary: `build/client <server_ip> <server_port>`
 
 **Running Tests:**
 
@@ -68,12 +70,16 @@ This project is a work-in-progress implementation of a basic client-server appli
 2. The documentation will be generated in the `docs` directory.
 3. Open the `index.html` file in the `docs/html` directory to view the documentation.
 
+**Installing:**
+
+* Because the project is a work-in-progress, it is not yet available for installation. However, you can still use it by building and running the project.
+
 ## Example Usage
 
 **Basic Client-Server Communication:**
 
-1. Start the server on port 8080: `./server 8080`
-2. In another terminal, connect a client: `./client 127.0.0.1 8080`
+1. Start the server on port 8080: `build/server 8080`
+2. In another terminal, connect a client: `build/client 127.0.0.1 8080`
 3. Type a message in the client, such as "Hello, world!".
 4. The server will respond with the count of each letter:
 ```
@@ -105,7 +111,7 @@ d |1
 
 ## Future Development
 
-* Implement command line editing and history for the client.
+* Implement command line editing and commands history for the client.
 * Add support for file transfer between clients.
 * Enhance security features with encryption and authentication.
 * Explore other communication protocols like UDP.
