@@ -57,11 +57,10 @@ This project is a work-in-progress implementation of a basic client-server appli
 
 **Running Tests:**
 
-1. Build and run automatic tests with `make test`
+1. Build and run automatic tests with `make test`. Code is also statically analyzed with `cppcheck` then `make test` is used
 2. Check code coverage with `make coverage`
 3. Check memory leaks with `make leaks`
 4. Build and run manual tests with `make debug_run`
-* Code is always statically analyzed with `cppcheck`
 
 **Generating Documentation:**
 
