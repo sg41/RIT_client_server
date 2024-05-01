@@ -45,33 +45,36 @@ tests: test
 
 test: CMAKE_FLAGS += -DCMAKE_CXX_CPPCHECK="cppcheck;--enable=all;--suppress=missingIncludeSystem;--suppress=unusedFunction;"
 test: debug
-	build/parser_test
-	build/client  > /dev/null 2>&1
-	build/client 127.0.0.1 8080 > /dev/null 2>&1
-	build/server 8080 wrong_parameter
-	build/server 8080 $(SERVER_MODE)&
+	$(BUILD_DIR)/parser_test
+	-$(BUILD_DIR)/client  > /dev/null 2>&1
+	-$(BUILD_DIR)/client 127.0.0.1 8080 > /dev/null 2>&1
+	-$(BUILD_DIR)/server 8080 wrong_parameter
+	$(BUILD_DIR)/server 8080 $(SERVER_MODE)&
 	# sleep 1 second to allow server to start
 	sleep 1 
-	-build/client_test
+	-$(BUILD_DIR)/client_test
 	-$(PYTEST)
 	# gracefull shutdown to collect coverage info
-	echo "shutdown" | build/client 127.0.0.1 8080 > /dev/null 2>&1
+	echo "shutdown" | $(BUILD_DIR)/client 127.0.0.1 8080 > /dev/null 2>&1
 
 leaks: debug
-	$(LEAKS) build/server 8080 silent&
+	$(LEAKS) $(BUILD_DIR)/server 8080 silent&
 	# sleep 1 second to allow server to start
 	sleep 1
-	-$(LEAKS) build/client_test
-	echo "shutdown" | build/client 127.0.0.1 8080 > /dev/null 2>&1
+	-$(LEAKS) $(BUILD_DIR)/client_test
+	echo "shutdown" | $(BUILD_DIR)/client 127.0.0.1 8080 > /dev/null 2>&1
 
 coverage: CMAKE_FLAGS += -DCOVERAGE=ON
 coverage: test
-	cd $(BUILD_DIR)
-	rm -rf report
-	mkdir report
-	lcov -t "gcov_report" -o gcov_report.info -c --d .
-	lcov -r gcov_report.info '/usr/include/*' -o filtered.info
-	genhtml -o report filtered.info 
+	rm -rf $(BUILD_DIR)/report
+	mkdir $(BUILD_DIR)/report
+ifeq ($(UNAME), Darwin)
+	gcovr -r . --html --html-details -o $(BUILD_DIR)/report/index.html
+else
+	lcov -t "gcov_report" -o $(BUILD_DIR)/gcov_report.info -c --d .
+	lcov -r gcov_report.info '/usr/include/*' -o $(BUILD_DIR)/filtered.info
+	genhtml -o $(BUILD_DIR)/report $(BUILD_DIR)/filtered.info --ignore-errors inconsistent ...
+endif
 	@find . -name "*.gcda" -exec rm -rf {} +
 
 show_coverage: coverage
@@ -93,4 +96,3 @@ clean:
 
 # Цель по умолчанию - сборка проекта
 .DEFAULT_GOAL := build_all
-.ONESHELL:
