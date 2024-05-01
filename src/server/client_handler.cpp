@@ -32,7 +32,7 @@ ClientHandler::~ClientHandler() {
   if (client_socket >= 0) close(client_socket);
 }
 
-std::string ClientHandler::getClientID() const { return client_id; }
+// std::string ClientHandler::getClientID() const { return client_id; }
 
 void ClientHandler::handleClient() {
   while (server->isRunning()) {
@@ -107,7 +107,7 @@ std::string ClientHandler::processMessage(const std::string& message) {
   }
 }
 
-const Server* ClientHandler::getServer() const { return server; }
+// const Server* ClientHandler::getServer() const { return server; }
 
 std::string ClientHandler::showConnections(const std::string& message) {
   Parser parser(message, {"number", "list", "count"}, "", "");
@@ -136,7 +136,9 @@ std::string ClientHandler::sendMessageToClient(const std::string& message) {
     auto receiver_id = parser.getCommand();
     return server->routeMessage(client_id, receiver_id, parser.getArgument())
                // if message sent to itself - no extra answer needed
-               ? (client_id == receiver_id ? "" : "Message sent")
+               ? ((client_id == receiver_id || receiver_id == "self")
+                      ? ""
+                      : "Message sent")
                : "Error";
   } else {
     return "Invalid command format";

@@ -126,6 +126,7 @@ bool Server::routeMessage(const std::string& sender_id,
                           const std::string& message) {
   bool message_sent = false;
   auto it = clients_.find(receiver_id);
+  if (receiver_id == "self") it = clients_.find(sender_id);
   if (it != clients_.end()) {
     it->second->sendMessage(sender_id + ": " + message);
     message_sent = true;

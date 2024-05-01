@@ -98,9 +98,10 @@ d |1
 **Client-to-Client Communication:**
 
 1. Connect two clients to the server.
-2. In one client, send a message to the other client using the format: `send <client_id> <message>`
+2. In one client, send a message to the other client using the format: `send <client_id> message`
     * For example: `send <client_2> Hi there!`
 3. The other client will receive the message: `client_1: Hi there!`
+4. The client can also send a message to itself using the command `send <self> message`.
 * Do not forget to use the `<` and `>` symbols to enclose the client ID.
 
 **Server Commands:**

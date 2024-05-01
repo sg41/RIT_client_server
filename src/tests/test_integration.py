@@ -19,7 +19,7 @@ def run_test(app, data, **kwargs):
     return res
 
 
-def test_1():
+def test_simpleMessage():
     res = run_test(["build/client", "127.0.0.1", "8080"], "12345\n")
     expected = ["Connected to server: success",
                 "> Server: ",
@@ -37,10 +37,10 @@ def test_1():
         assert res[i] == expected[i]
 
 
-def test_2():
+def test_showList():
 
     t = threading.Thread(target=run_test, args=([
-        "build/client", "127.0.0.1", "8080"], f"show list\n"), kwargs={"timeout": 2})
+        "build/client", "127.0.0.1", "8080"], f"help\n"), kwargs={"timeout": 2})
     t.start()
     time.sleep(1)
     res = run_test(["build/client", "127.0.0.1", "8080"], "show list\n")
@@ -58,7 +58,7 @@ def test_2():
     t.join()
 
 
-def test_3():
+def test_showNumber():
     threads = []
     time.sleep(1)  # Wait for previous test to finish
     for i in range(5):
@@ -77,15 +77,15 @@ def test_3():
         t.join()
 
 
-def test_4():
+def test_sendMessageOk():
     threads = []
-    for i in range(2):
+    for i in range(4):
         threads.append(threading.Thread(target=run_test, args=([
-            "build/client", "127.0.0.1", "8080"], f"show number\n"), kwargs={"timeout": 1}))
+            "build/client", "127.0.0.1", "8080"], f"exit\n\n"), kwargs={"timeout": 1}))
         threads[i].start()
     res = run_test(["build/client", "127.0.0.1", "8080"], "show list\n")
     res2 = run_test(["build/client", "127.0.0.1", "8080"],
-                    "send<"+res[4]+">message\n")
+                    "send<"+res[3]+">message\n")
     expected = ["Connected to server: success",
                 "^> Server: Message sent$",
                 "> ",
@@ -97,11 +97,23 @@ def test_4():
         t.join()
 
 
-def test_4():
+def test_sendMessageError():
     res2 = run_test(["build/client", "127.0.0.1", "8080"],
                     "send<client_0>message\n")
     expected = ["Connected to server: success",
                 "^> Server: Error$",
+                "> ",
+                "Bye!",
+                ""]
+    for i in range(len(res2)):
+        assert re.search(expected[i], res2[i])
+
+
+def test_SendMessageSelf():
+    res2 = run_test(["build/client", "127.0.0.1", "8080"],
+                    "send<self>message\n")
+    expected = ["Connected to server: success",
+                "^> Server: client_[0-9]+: message$",
                 "> ",
                 "Bye!",
                 ""]

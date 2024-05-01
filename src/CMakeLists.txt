@@ -28,8 +28,8 @@ set_target_properties(client server PROPERTIES CXX_STANDARD 17)
 # Указываем заголовочные файлы, если они есть
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} client server tools) 
 
-target_link_libraries(server PUBLIC parser)
-target_link_libraries(client PUBLIC parser)
+target_link_libraries(server parser)
+target_link_libraries(client parser)
 
 # Тесты =====================================================================================
 find_package(GTest REQUIRED)
@@ -59,12 +59,15 @@ set_target_properties(parser_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BI
 set_target_properties(parser_test PROPERTIES CXX_STANDARD 17)
 set_target_properties(client_test PROPERTIES CXX_STANDARD 17)
 
-include(CodeCoverage.cmake)
-append_coverage_compiler_flags()
-setup_target_for_coverage_gcovr_html(
-    NAME coverage                 
-        EXECUTABLE  client_test  
-        
-        DEPENDENCIES  
-        client_test       
-)
+if (${COVERAGE})
+    target_compile_options(client_test PUBLIC --coverage)
+    target_compile_options(parser_test PUBLIC --coverage)
+    target_compile_options(client PUBLIC --coverage)
+    target_compile_options(server PUBLIC --coverage)
+    target_compile_options(parser PUBLIC --coverage)
+    target_link_libraries(client_test gcov)
+    target_link_libraries(parser_test gcov)
+    target_link_libraries(client gcov)
+    target_link_libraries(server gcov)
+endif()
+

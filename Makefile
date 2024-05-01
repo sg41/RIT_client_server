@@ -5,6 +5,7 @@ DOCS_DIR = docs
 CMAKE_FLAGS = 
 UNAME:=$(shell uname)
 SOURCES = $(shell find . -name "*.cpp") $(shell find . -name "*.h")
+SERVER_MODE = silent
 ifeq ($(UNAME), Darwin)
 	PYTEST = python3 -m pytest
 	LEAKS = leaks --atExit --
@@ -35,18 +36,26 @@ debug_run: debug
 	build/server 12345&
 	build/client 127.0.0.1 12345
 	sleep 1
-	ps -f | grep 'server 12345' | grep -v grep | awk '{print $$2}' | xargs kill
+	@ps -f | grep 'server 12345' | grep -v grep | awk '{print $$2}' | xargs kill
 
-# Цель для запуска тестов
+# Цели для запуска тестов
+all_tests: test leaks coverage
+
+tests: test
+
 test: CMAKE_FLAGS += -DCMAKE_CXX_CPPCHECK="cppcheck;--enable=all;--suppress=missingIncludeSystem;--suppress=unusedFunction;"
 test: debug
 	build/parser_test
-	build/server 8080 silent&
+	build/client  > /dev/null 2>&1
+	build/client 127.0.0.1 8080 > /dev/null 2>&1
+	build/server 8080 wrong_parameter
+	build/server 8080 $(SERVER_MODE)&
 	# sleep 1 second to allow server to start
 	sleep 1 
 	-build/client_test
 	-$(PYTEST)
-	@ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
+	# gracefull shutdown to collect coverage info
+	echo "shutdown" | build/client 127.0.0.1 8080 > /dev/null 2>&1
 
 leaks: debug
 	$(LEAKS) build/server 8080 silent&
@@ -55,16 +64,27 @@ leaks: debug
 	-$(LEAKS) build/client_test
 	echo "shutdown" | build/client 127.0.0.1 8080 > /dev/null 2>&1
 
-coverage: debug
-	build/server 8080 silent&
-	cd $(BUILD_DIR) && make coverage
-	@ps -f | grep 'server 8080' | grep -v grep | awk '{print $$2}' | xargs kill
-	open build/src/coverage/index.html
+coverage: CMAKE_FLAGS += -DCOVERAGE=ON
+coverage: test
+	cd $(BUILD_DIR)
+	rm -rf report
+	mkdir report
+	lcov -t "gcov_report" -o gcov_report.info -c --d .
+	lcov -r gcov_report.info '/usr/include/*' -o filtered.info
+	genhtml -o report filtered.info 
+	@find . -name "*.gcda" -exec rm -rf {} +
 
+show_coverage: coverage
+	open $(BUILD_DIR)/report/index.html
+
+# Цель для сборки документации
 docs: doxygen.conf $(SOURCES) README.md
 	doxygen doxygen.conf
 
-# Цель для очистки проекта (удаление директории build)
+show_docs: docs
+	open $(DOCS_DIR)/html/index.html
+
+# Цель для очистки проекта от сборки
 clean:
 	rm -rf $(BUILD_DIR)
 	find . -name "__pycache__" -exec rm -rf {} +
@@ -73,3 +93,4 @@ clean:
 
 # Цель по умолчанию - сборка проекта
 .DEFAULT_GOAL := build_all
+.ONESHELL:

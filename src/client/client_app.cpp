@@ -4,9 +4,9 @@
  * @brief Client application class implementation
  * @version 0.1
  * @date 2024-05-01
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "client_app.h"
 
@@ -82,9 +82,18 @@ bool ClientApp::talkToServer(std::string& response) {
   return !got_error;
 }
 
-void ClientApp::exit() { running_ = false; }
+void ClientApp::shutdownServer() {
+  if (!client_.sendMessage("shutdown")) {
+    std::cout << "Failed to send shutdown message to server." << std::endl;
+  } else {
+    std::cout << "Shutdow sent to server." << std::endl;
+    performExit();
+  }
+}
 
-void ClientApp::help() {
+void ClientApp::performExit() { running_ = false; }
+
+void ClientApp::showHelp() {
   std::cout << "Available commands:" << std::endl;
   std::cout << "  Client side:" << std::endl;
   std::cout << "    exit|quit|!q - exit the program" << std::endl;

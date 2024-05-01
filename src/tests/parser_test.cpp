@@ -123,6 +123,14 @@ TEST(ParserTest, TestNoSecondDelimiter) {
   EXPECT_EQ(parser.getArgument(), " argument");
 }
 
+TEST(ParserTest, TestSecondDelimiterMissing) {
+  std::unordered_set<std::string> valid_commands = {"command1", "command2"};
+  Parser parser("<command1 argument", valid_commands, "<", ">");
+  EXPECT_FALSE(parser.hasCommand());
+  EXPECT_EQ(parser.getCommand(), "");
+  EXPECT_EQ(parser.getArgument(), "");
+}
+
 TEST(ParserTest, TestTemplateConstructor) {
   std::map<std::string, std::string> valid_commands = {{"command1", "arg1"},
                                                        {"command", "arg2"}};

@@ -41,8 +41,8 @@ class ClientHandler {
   ClientHandler(int socket, const std::string& id, Server* server);
   ~ClientHandler();
   void handleClient();
-  std::string getClientID() const;
-  const Server* getServer() const;
+  // std::string getClientID() const;
+  // const Server* getServer() const;
 
   std::string receiveMessage();
   /**

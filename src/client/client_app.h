@@ -84,8 +84,9 @@ class ClientApp {
    * @throws None
    */
   bool talkToServer(std::string& response);
-  void exit();
-  void help();
+  void shutdownServer();
+  void performExit();
+  void showHelp();
 
  private:
   Client client_;
@@ -94,10 +95,11 @@ class ClientApp {
   bool running_ = false;
   // Map of valid commands served by client side
   std::map<std::string, void (ClientApp::*)()> valid_commands_ = {
-      {"exit", &ClientApp::exit},
-      {"help", &ClientApp::help},
-      {"quit", &ClientApp::exit},
-      {"!q", &ClientApp::exit},
-      {"?", &ClientApp::help}};
+      {"shutdown", &ClientApp::shutdownServer},
+      {"exit", &ClientApp::performExit},
+      {"help", &ClientApp::showHelp},
+      {"quit", &ClientApp::performExit},
+      {"!q", &ClientApp::performExit},
+      {"?", &ClientApp::showHelp}};
 };
 #endif  // CLIENT_CLIENT_APP_H

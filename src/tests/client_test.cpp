@@ -31,6 +31,14 @@ TEST_F(ClientTest, TestSendMessage) {
   EXPECT_TRUE(client.sendMessage(message));
 }
 
+TEST_F(ClientTest, TestSendMessageWithCommand) {
+  Client client(kTestServerIP, kTestServerPort);
+  ASSERT_TRUE(client.connectToServer());
+
+  std::string message = "send <client_1> Test message";
+  EXPECT_TRUE(client.sendMessage(message));
+}
+
 TEST_F(ClientTest, TestReceiveMessage) {
   Client client(kTestServerIP, kTestServerPort);
   ASSERT_TRUE(client.connectToServer());
