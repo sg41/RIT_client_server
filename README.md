@@ -1,87 +1,117 @@
-# Клиент-серверное приложение с TCP/IP на C++
+# RIT Client-Server Application
 
-## Описание
+## Introduction
 
-Данный проект представляет собой консольное клиент-серверное приложение, взаимодействующее по протоколу TCP/IP. Клиент отправляет сообщения на сервер, который обрабатывает их и возвращает ответ.
+This project is a work-in-progress implementation of a basic client-server application using TCP/IP communication in C++. The client can send messages to the server, which processes them and sends back responses.
 
-## Функционал
+## Features
 
-### Клиент:
+**Client:**
 
-* Подключение к серверу по указанному IP-адресу и порту.
-* Отправка текстовых сообщений на сервер.
-* Получение ответов от сервера.
-* Автоматическое переподключение при потере соединения.
+* Connect to server via IP address and port.
+* Send text messages to the server.
+* Receive responses from the server.
+* Automatic reconnection on connection loss.
 
-### Сервер:
+**Server:**
 
-* Прием подключений от нескольких клиентов одновременно.
-* Обработка входящих сообщений:
-    * Парсинг сообщения и подсчет количества различных букв.
-    * Возврат количества текущих подключений по запросу.
-    * Возможность общения клиентов через сервер.
+* Handle multiple client connections simultaneously.
+* Parse incoming messages and count the occurrence of different letters.
+* Provide the number of current connections upon request.
+* Enable communication between clients through the server.
+* Offer shutdown functionality.
 
-## Требования
+## Technical Details
 
-* ОС: Linux
-* Язык программирования: C++
-* Инструменты сборки: CMake (предпочтительно) или Make
-* Без использования сторонних фреймворков
+* Programming Language: C++
+* Build System: CMake and Make
+* Unit Testing: Google Test
+* Integration Testing: Python
+* Code Coverage: gcovr
+* Documentation: Doxygen
 
-## Структура проекта
+## Dependencies
+
+* Linux operating system or MacOS
+* C++ compiler
+* CMake and Make
+* Google Test
+* Python3 and pytest
+
+## Building and Running
+
+**Building with Make:**
+
+1. Clone the repository.
+2. Navigate to the project directory.
+3. Build the project: `make`
+
+**Running the Server:**
+
+1. Execute the server binary with the desired port: `./server <port> [silent]`
+    * The `silent` option disables server console output.
+
+**Running the Client:**
+
+1. In a separate terminal, run the client binary: `./client <server_ip> <server_port>`
+
+**Running Tests:**
+
+1. Build and run automatic tests with `make test`
+2. Check code coverage with `make coverage`
+3. Check memory leaks with `make leaks`
+4. Build and run manual tests with `make debug_run`
+* Code is always statically analyzed with `cppcheck`
+
+**Generating Documentation:**
+
+1. Generate the documentation with `make docs`
+2. The documentation will be generated in the `docs` directory.
+3. Open the `index.html` file in the `docs/html` directory to view the documentation.
+
+## Example Usage
+
+**Basic Client-Server Communication:**
+
+1. Start the server on port 8080: `./server 8080`
+2. In another terminal, connect a client: `./client 127.0.0.1 8080`
+3. Type a message in the client, such as "Hello, world!".
+4. The server will respond with the count of each letter:
 ```
-├── CMakeLists.txt
-└── src
-    ├── client.cpp
-    └── server.cpp
+H |1
+e |1
+l |3
+o |2
+, |1
+  |1
+w |1
+r |1
+d |1
+! |1
 ```
 
-## Инструкции по сборке и запуску
+**Client-to-Client Communication:**
 
-1. Клонируйте репозиторий.
-2. Перейдите в директорию проекта.
-3. Соберите проект:
-    * **CMake:**
-        ```bash
-        mkdir build
-        cd build
-        cmake ..
-        make
-        ```
-    * **Make:**
-        ```bash
-        make
-        ```
-4. Запустите сервер:
-    ```bash
-    ./server 
-    ```
-5. В отдельном терминале запустите клиент, указав IP-адрес и порт сервера:
-    ```bash
-    ./client <IP-адрес> <порт> 
-    ```
-6. Вводите текст для отправки на сервер.
+1. Connect two clients to the server.
+2. In one client, send a message to the other client using the format: `send <client_id> <message>`
+    * For example: `send <client_2> Hi there!`
+3. The other client will receive the message: `client_1: Hi there!`
+* Do not forget to use the `<` and `>` symbols to enclose the client ID.
 
-## Пример использования
+**Server Commands:**
 
-1. Запустите сервер на порту 12345:
-    ```bash
-    ./server 12345
-    ```
-2. Запустите клиент, подключившись к серверу:
-    ```bash
-    ./client 127.0.0.1 12345
-    ```
-3. Введите сообщение "Hello" в клиенте.
-4. Сервер обработает сообщение и вернет клиенту таблицу с количеством букв:
-    ```
-    H 1
-    e 1
-    l 2
-    o 1
-    ```
+* `show list`: Display a list of connected clients with their IDs.
+* `show number`: Show the number of currently connected clients.
+* `shutdown`: Shut down the server gracefully.
 
+## Future Development
 
-## Примечания
+* Implement command line editing and history for the client.
+* Add support for file transfer between clients.
+* Enhance security features with encryption and authentication.
+* Explore other communication protocols like UDP.
 
-* Приложение в процессе разработки
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or open issues for bug reports and feature suggestions.
+
