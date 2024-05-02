@@ -1,4 +1,3 @@
-#TODO coverage
 # Указываем переменные для удобства
 BUILD_DIR = build
 DOCS_DIR = docs
@@ -33,8 +32,8 @@ debug: cmake-configure
 
 # Цель для сборки проекта с отладочным режимом и запуска
 debug_run: debug
-	build/server 12345&
-	build/client 127.0.0.1 12345
+	$(BUILD_DIR)/server 12345&
+	$(BUILD_DIR)/client 127.0.0.1 12345
 	sleep 1
 	@ps -f | grep 'server 12345' | grep -v grep | awk '{print $$2}' | xargs kill
 
@@ -71,9 +70,9 @@ coverage: test
 ifeq ($(UNAME), Darwin)
 	gcovr -r . --html --html-details -o $(BUILD_DIR)/report/index.html
 else
-	lcov -t "gcov_report" -o $(BUILD_DIR)/gcov_report.info -c --d .
-	lcov -r gcov_report.info '/usr/include/*' -o $(BUILD_DIR)/filtered.info
-	genhtml -o $(BUILD_DIR)/report $(BUILD_DIR)/filtered.info --ignore-errors inconsistent ...
+	lcov -t "gcov_report" -o $(BUILD_DIR)/gcov_report.info -c -d .
+	lcov -r $(BUILD_DIR)/gcov_report.info '/usr/include/*' -o $(BUILD_DIR)/filtered.info
+	genhtml -o $(BUILD_DIR)/report $(BUILD_DIR)/filtered.info
 endif
 	@find . -name "*.gcda" -exec rm -rf {} +
 
