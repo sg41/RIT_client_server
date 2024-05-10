@@ -42,15 +42,15 @@ ClientApp::Event ClientApp::eventLoop() {
     std::getline(std::cin, message);
     return message;
   };
-  if (!input_thread_.valid())
-    input_thread_ = std::async(std::launch::async, readUserInput);
+  if (!input_future_.valid())
+    input_future_ = std::async(std::launch::async, readUserInput);
   while (running_) {
     if (client_.checkHaveMessage()) {
       return Event::kServerMessage;
     }
-    if (input_thread_.wait_for(std::chrono::milliseconds(100)) ==
+    if (input_future_.wait_for(std::chrono::milliseconds(100)) ==
         std::future_status::ready) {
-      message_ = input_thread_.get();
+      message_ = input_future_.get();
       return Event::kUserInput;
     }
   }

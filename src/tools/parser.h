@@ -40,7 +40,7 @@ class Parser {
  public:
   explicit Parser(const std::string& message);
   explicit Parser(const std::string& message,
-                  const std::initializer_list<std::string>& valid_commands,
+                  const std::initializer_list<std::string>&& valid_commands,
                   const std::string& start = "<", const std::string& end = ">");
   template <typename T>
   Parser(const std::string& message, const T& valid_commands,

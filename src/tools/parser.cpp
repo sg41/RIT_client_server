@@ -75,9 +75,11 @@ std::string Parser::extractTag(const std::string& message, size_t& offset) {
 
 Parser::Parser(const std::string& message) { parse(message); }
 Parser::Parser(const std::string& message,
-               const std::initializer_list<std::string>& valid_commands,
+               const std::initializer_list<std::string>&& valid_commands,
                const std::string& tag_start, const std::string& tag_end)
-    : kTagStart(tag_start), kTagEnd(tag_end), valid_commands_(valid_commands) {
+    : kTagStart(tag_start),
+      kTagEnd(tag_end),
+      valid_commands_(std::move(valid_commands)) {
   parse(message);
 }
 

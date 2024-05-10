@@ -91,7 +91,7 @@ class ClientApp {
  private:
   Client client_;
   std::string message_{};
-  std::future<std::string> input_thread_;
+  std::future<std::string> input_future_;
   bool running_ = false;
   // Map of valid commands served by client side
   std::map<std::string, void (ClientApp::*)()> valid_commands_ = {
