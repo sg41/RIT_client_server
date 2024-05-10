@@ -74,13 +74,12 @@ std::string Parser::extractTag(const std::string& message, size_t& offset) {
 }
 
 Parser::Parser(const std::string& message) { parse(message); }
-
 Parser::Parser(const std::string& message,
-               const std::unordered_set<std::string>& valid_commands,
-               const std::string& start, const std::string& end)
-    : kTagStart(start), kTagEnd(end), valid_commands_(valid_commands) {
+               const std::initializer_list<std::string>& valid_commands,
+               const std::string& tag_start, const std::string& tag_end)
+    : kTagStart(tag_start), kTagEnd(tag_end), valid_commands_(valid_commands) {
   parse(message);
-};
+}
 
 bool Parser::hasCommand() const { return has_command_; };
 const std::string& Parser::getCommand() const { return command_; };
