@@ -37,10 +37,22 @@ bool ClientApp::connectToServer() {
 }
 
 ClientApp::Event ClientApp::eventLoop() {
-  auto readUserInput = []() {
+  auto readUserInput = [&]() {
     std::string message;
+#ifdef NONBLOCKING_INPUT_RESEARCH
+    while (running_) {
+      if (std::cin.rdbuf()->in_avail() > 0) {
+        auto c = std::cin.get();
+        if (c == '\n') {
+          break;
+        }
+        message.push_back(std::cin.get());
+      }
+    }
+#else
     std::getline(std::cin, message);
     return message;
+#endif  // NONBLOCKING_INPUT_RESEARCH
   };
   if (!input_future_.valid())
     input_future_ = std::async(std::launch::async, readUserInput);
@@ -139,7 +151,7 @@ int ClientApp::run() {
           break;
         }
         if (parser.hasCommand()) {  // Execute client-side commands
-          (this->*valid_commands_[parser.getCommand()])();
+          valid_commands_[parser.getCommand()](this);
           break;
         }
         if (!talkToServer(response)) {
