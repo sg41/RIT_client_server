@@ -10,6 +10,8 @@
  */
 #include "parser.h"
 
+#include <algorithm>
+
 void Parser::parse(const std::string& message) {
   size_t offset = 0;
   command_ = extractTag(message, offset);
@@ -36,17 +38,19 @@ void Parser::parse(const std::string& message) {
 std::string Parser::extractTagByMatch(const std::string& message,
                                       size_t& offset) {
   auto best_match = kTagNotFound;
-  auto best_it = std::string::npos;
+  auto best_it = message.end();
   for (auto command : valid_commands_) {
-    auto it = message.find(command);
-    if (it != std::string::npos) {
+    auto it =
+        std::search(message.begin(), message.end(),
+                    std::boyer_moore_searcher(command.begin(), command.end()));
+    if (it != message.end()) {
       if (it < best_it) {
         best_it = it;
         best_match = command;
       }
     }
   }
-  offset = best_it + best_match.length();
+  offset = std::distance(message.begin(), best_it) + best_match.length();
   return best_match;
 }
 
