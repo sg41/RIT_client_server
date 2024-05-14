@@ -50,16 +50,16 @@ bool Client::connectToServer() {
   return connected;
 }
 
-bool Client::checkHaveMessage() {
+bool Client::checkHaveMessage(int fd) {
   bool have_data = false;
   fd_set readfds;
   FD_ZERO(&readfds);
-  FD_SET(sockfd_, &readfds);
+  FD_SET(fd, &readfds);
   struct timeval tv;
   tv.tv_sec = 0;
   tv.tv_usec = 0;
-  int result = select(sockfd_ + 1, &readfds, NULL, NULL, &tv);
-  if (result > 0 && FD_ISSET(sockfd_, &readfds)) {
+  int result = select(fd + 1, &readfds, NULL, NULL, &tv);
+  if (result > 0 && FD_ISSET(fd, &readfds)) {
     have_data = true;
   }
 

@@ -12,6 +12,7 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -37,32 +38,12 @@ bool ClientApp::connectToServer() {
 }
 
 ClientApp::Event ClientApp::eventLoop() {
-  auto readUserInput = [&]() {
-    std::string message;
-#ifdef NONBLOCKING_INPUT_RESEARCH
-    while (running_) {
-      if (std::cin.rdbuf()->in_avail() > 0) {
-        auto c = std::cin.get();
-        if (c == '\n') {
-          break;
-        }
-        message.push_back(std::cin.get());
-      }
-    }
-#else
-    std::getline(std::cin, message);
-    return message;
-#endif  // NONBLOCKING_INPUT_RESEARCH
-  };
-  if (!input_future_.valid())
-    input_future_ = std::async(std::launch::async, readUserInput);
   while (running_) {
-    if (client_.checkHaveMessage()) {
+    if (client_.checkHaveMessage(client_.getSocketFD())) {
       return Event::kServerMessage;
     }
-    if (input_future_.wait_for(std::chrono::milliseconds(100)) ==
-        std::future_status::ready) {
-      message_ = input_future_.get();
+    if (client_.checkHaveMessage(STDIN_FILENO)) {
+      std::getline(std::cin, message_);
       return Event::kUserInput;
     }
   }

@@ -11,7 +11,6 @@
 #ifndef CLIENT_CLIENT_APP_H
 #define CLIENT_CLIENT_APP_H
 #include <functional>
-#include <future>
 #include <map>
 
 #include "client.h"
@@ -94,8 +93,7 @@ class ClientApp {
  private:
   Client client_;
   std::string message_{};
-  std::future<std::string> input_future_;
-  std::atomic<bool> running_ = false;
+  bool running_ = false;
   // Map of valid commands served by client side
   std::map<std::string, std::function<void(ClientApp*)>> valid_commands_ = {
       {"shutdown", &ClientApp::shutdownServer},

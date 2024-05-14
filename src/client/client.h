@@ -4,9 +4,9 @@
  * @brief Client class declaration
  * @version 0.1
  * @date 2024-05-01
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef CLIENT_CLIENT_H
 #define CLIENT_CLIENT_H
@@ -41,13 +41,14 @@ class Client {
    */
   bool connectToServer();
   /**
-   * Checks if there is any data available to be read from the socket.
+   * Checks if there is any data available to be read from the socket or other
+   * file descriptor.
    *
    * @return true if there is data available, false otherwise.
    *
    * @throws None
    */
-  bool checkHaveMessage();
+  bool checkHaveMessage(int fd);
   /**
    * Sends a message over the socket connection.
    *
@@ -77,6 +78,7 @@ class Client {
    * @throws None
    */
   bool reconnect();
+  auto getSocketFD() const { return sockfd_; }
   ~Client();
 
  private:
