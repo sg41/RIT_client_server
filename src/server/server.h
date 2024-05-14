@@ -41,6 +41,15 @@ class Server {
  public:
   explicit Server(int port, bool log = false);
   /**
+   * Rule of 5 implementation
+   */
+  Server(const Server&) = delete;
+  Server(Server&&) = delete;
+  Server& operator=(const Server&) = delete;
+  Server& operator=(Server&&) = delete;
+  ~Server();
+
+  /**
    * Starts the server by creating a socket, binding it to a specific address
    * and port, and listening for incoming connections.
    *
@@ -80,7 +89,6 @@ class Server {
                     const std::string& receiver_id, const std::string& message);
   const std::map<std::string, std::shared_ptr<ClientHandler>>& getClients()
       const;
-  ~Server();
   std::mutex& getServerMutex() { return server_mutex_; }
   bool isLogEnabled() const { return log_; }
   bool isRunning() const { return is_running_; }

@@ -32,6 +32,16 @@ class Client {
    * @param log Flag indicating whether logging is enabled.
    */
   Client(const std::string& ip, int port, bool log = false);
+
+  /**
+   * Rule of 5 implementation
+   */
+  Client(const Client&) = delete;
+  Client& operator=(const Client&) = delete;
+  Client(Client&&) = delete;
+  Client& operator=(Client&&) = delete;
+  ~Client();
+
   /**
    * Connects to the server. No retries are done in case of failure.
    *
@@ -79,7 +89,6 @@ class Client {
    */
   bool reconnect();
   auto getSocketFD() const { return sockfd_; }
-  ~Client();
 
  private:
   std::string server_ip_;

@@ -39,10 +39,16 @@ class Server;
 class ClientHandler {
  public:
   ClientHandler(int socket, const std::string& id, Server* server);
+  /**
+   * Rule of 5 implementation
+   */
+  ClientHandler(const ClientHandler&) = delete;
+  ClientHandler(ClientHandler&&) = delete;
+  ClientHandler& operator=(const ClientHandler&) = delete;
+  ClientHandler& operator=(ClientHandler&&) = delete;
   ~ClientHandler();
+
   void handleClient();
-  // std::string getClientID() const;
-  // const Server* getServer() const;
 
   std::string receiveMessage();
   /**
