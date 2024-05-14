@@ -12,29 +12,41 @@
 #ifndef TOOLS_COMMUNICATOR_H
 #define TOOLS_COMMUNICATOR_H
 #include <string>
-
-class Communicator {
+const int kMaxRetries = 3;
+const int kRetryTimeout = 3;
+const int kBufferSize = 1024;
+typedef enum class SocketType { kServer, kClient };
+class Connection {
  public:
-  typedef enum class SocketType { Server, Client };
-  Communicator(SocketType, std::string ip = "0.0.0.0", int port = 8080);
-  ~Communicator();
+  Connection(std::string ip = "0.0.0.0", int port = 8080);
+  Connection(const Connection&) = delete;
+  Connection& operator=(const Connection&) = delete;
+  Connection(Connection&&) = delete;
+  Connection& operator=(Connection&&) = delete;
+  virtual ~Connection();
 
-  void createSocket();
-  void bindSocket(int port);
-  void listenSocket(int max_connections);
-  int acceptConnection();
+  virtual void establishConnection();
+  virtual void disconnect();
+  bool checkHaveMessage(int fd, int timeout = 100);
   void sendMessage(const std::string& message);
   std::string receiveMessage();
-  void closeSocket();
 
- private:
-  void createServerSocket();
-  void createClientSocket();
+ protected:
+  SocketType type_ = SocketType::kServer;
+  std::string ip_ = "0.0.0.0";
+  int port_ = 8080;
+  int sockfd_ = -1;
+};
 
- private:
-  SocketType type_;
-  std::string ip_;
-  int port_;
-  int sockfd_;
+class ServerConnection : public Connection {
+ public:
+  void establishConnection() override;
+  bool checkNewClient();
+  int acceptNewClient();
+};
+
+class ClientConnection : public Connection {
+  void establishConnection() override;
+  bool reconnect(int timeout = 3, int maxAttempts = 0);
 };
 #endif  // TOOLS_COMMUNICATOR_H

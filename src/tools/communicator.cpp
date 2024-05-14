@@ -5,19 +5,21 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-Communicator::Communicator(SocketType type, std::string ip, int port)
-    : type_{type}, ip_{ip}, port_{port} {
-  // Constructor implementation
+#include <cstring>
+#include <stdexcept>
+
+Connection::Connection(std::string ip, int port) : ip_{ip}, port_{port} {}
+
+Connection::~Connection() {
+  if (sockfd_ >= 0) {
+    close(sockfd_);
+  }
 }
 
-Communicator::~Communicator() {
-  // Destructor implementation
-}
-
-void Communicator::createServerSocket() {
+void ServerConnection::establishConnection() {
   sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd_ < 0) {
-    // TODO: throw error
+    throw std::runtime_error("Error creating socket");
   }
 
   int option = 1;
@@ -30,34 +32,78 @@ void Communicator::createServerSocket() {
 
   if (bind(sockfd_, reinterpret_cast<const struct sockaddr*>(&address),
            sizeof(address)) < 0) {
-    // TODO: throw error
+    throw std::runtime_error("Error binding socket");
   }
 
   if (listen(sockfd_, 5) < 0) {
-    // TODO: throw error
+    throw std::runtime_error("Error listening for incoming connections");
   }
 }
 
-void Communicator::bindSocket(int port) {
-  // Implementation
+void ClientConnection::establishConnection() {
+  sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd_ < 0) {
+    throw std::runtime_error("Error creating socket");
+  }
+
+  sockaddr_in serv_addr;
+  memset(&serv_addr, 0, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_port = htons(port_);
+  inet_pton(AF_INET, ip_.c_str(), &serv_addr.sin_addr);
+
+  if (connect(sockfd_, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+    throw std::runtime_error("Error connecting to server");
+  }
 }
 
-void Communicator::listenSocket(int max_connections) {
-  // Implementation
+bool Connection::checkHaveMessage(int fd, int timeout) {
+  bool have_data = false;
+  fd_set readfds;
+  FD_ZERO(&readfds);
+  FD_SET(fd, &readfds);
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = timeout;
+  int result = select(fd + 1, &readfds, NULL, NULL, &tv);
+  if (result > 0 && FD_ISSET(fd, &readfds)) {
+    have_data = true;
+  }
+
+  return have_data;
 }
 
-int Communicator::acceptConnection() {
-  // Implementation
+void Connection::sendMessage(const std::string& message) {
+  size_t result = send(sockfd_, message.c_str(), message.length(), 0);
+  if (result != message.length()) {
+    throw std::runtime_error("Error sending message");
+  }
 }
 
-void Communicator::sendMessage(const std::string& message) {
-  // Implementation
+std::string Connection::receiveMessage() {
+  char buffer[kBufferSize] = {0};
+  int bytes_received = recv(sockfd_, buffer, kBufferSize, 0);
+  if (bytes_received <= 0) {
+    throw std::runtime_error("Error receiving message or connection closed");
+  }
+  return std::string(buffer, bytes_received);
 }
 
-std::string Communicator::receiveMessage() {
-  // Implementation
-}
+bool ClientConnection::reconnect(int timeout, int maxAttempts) {
+  bool connected = false;
+  int attempt = 0;
+  if (sockfd_ >= 0) close(sockfd_);
+  sockfd_ = -1;
+  while (attempt++ < maxAttempts) {
+    try {
+      establishConnection();
+      connected = true;
+      break;
+    } catch (std::runtime_error& e) {
+    }
 
-void Communicator::closeSocket() {
-  // Implementation
+    sleep(timeout);
+  }
+
+  return connected;
 }
