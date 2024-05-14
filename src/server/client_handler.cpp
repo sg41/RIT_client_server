@@ -32,8 +32,6 @@ ClientHandler::~ClientHandler() {
   if (client_socket >= 0) close(client_socket);
 }
 
-// std::string ClientHandler::getClientID() const { return client_id; }
-
 void ClientHandler::handleClient() {
   while (server->isRunning()) {
     std::string message = receiveMessage();
@@ -88,7 +86,8 @@ std::string ClientHandler::processMessage(const std::string& message) {
   // std::map<std::string, std::unique_ptr<Command>> commands;
   // commands["send"] = std::make_unique<CommunicateCommand>();
   // commands["show"] = std::make_unique<ShowCommand>();
-  std::map<std::string, std::string (ClientHandler::*)(const std::string&)>
+  static const std::map<std::string,
+                        std::string (ClientHandler::*)(const std::string&)>
       commands{{"send", &ClientHandler::sendMessageToClient},
                {"show", &ClientHandler::showConnections},
                {"shutdown", &ClientHandler::shutdownServer}};
@@ -106,8 +105,6 @@ std::string ClientHandler::processMessage(const std::string& message) {
     return "Unknown command.";
   }
 }
-
-// const Server* ClientHandler::getServer() const { return server; }
 
 std::string ClientHandler::showConnections(const std::string& message) {
   Parser parser(message, {"number", "list", "count"}, "", "");

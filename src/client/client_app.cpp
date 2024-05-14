@@ -104,14 +104,14 @@ int ClientApp::run() {
   running_ = true;
   int error_code = 0;
 
+  Parser parser(message_, valid_commands_, "", "");
   while (running_) {
     std::string response;
     std::cout << "> " << std::flush;
 
     // Check if the client has a message from server or from user input
     Event event = eventLoop();
-
-    Parser parser(message_, valid_commands_, "", "");
+    parser.parse(message_);
 
     switch (event) {
       case Event::kServerMessage:

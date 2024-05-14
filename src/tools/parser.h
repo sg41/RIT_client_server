@@ -52,9 +52,9 @@ class Parser {
   bool hasCommand() const;
   const std::string& getCommand() const;
   const std::string& getArgument() const;
+  void parse(const std::string& message);
 
  private:
-  void parse(const std::string& message);
   std::string extractTagByMatch(const std::string& message, size_t& offset);
   std::string extractTag(const std::string& message, size_t& offset);
 
