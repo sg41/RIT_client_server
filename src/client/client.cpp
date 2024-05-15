@@ -20,7 +20,11 @@
 
 Client::Client(const std::string& ip, int port, bool log)
     : server_ip_(ip), server_port_(port), log_(log) {
-  connection_ = std::make_shared<ClientConnection>(server_ip_, server_port_);
+  try {
+    connection_ = std::make_shared<ClientConnection>(server_ip_, server_port_);
+  } catch (std::runtime_error& e) {
+    if (log_) std::cout << "Client: " << e.what() << std::endl << std::endl;
+  }
 }
 
 bool Client::connectToServer() {

@@ -30,12 +30,12 @@ ClientHandler::ClientHandler(std::shared_ptr<Connection>&& connection,
     : connection_(connection), client_id(id), server(server) {}
 
 void ClientHandler::handleClient() {
+  std::string message;
   while (server->isRunning()) {
-    std::string message = receiveMessage();
+    message = receiveMessage();
     if (message.empty()) {
       break;  // Client disconnected
     }
-
     // Process message and send response
     if (server->isLogEnabled())
       std::cout << "Server: received from " << client_id << ": " << message
@@ -50,14 +50,21 @@ void ClientHandler::handleClient() {
 }
 
 std::string ClientHandler::receiveMessage() {
-  return connection_->receiveMessage();
+  std::string message;
+  try {
+    message = connection_->receiveMessage();
+  } catch (std::runtime_error& e) {
+    if (server->isLogEnabled())
+      std::cout << "Server: Error receiving message: " << e.what() << std::endl;
+    message = "";
+  }
+  return message;
 }
 
 std::string ClientHandler::sendMessage(const std::string& message) {
   std::string answer = "Ok";
   try {
     connection_->sendMessage(message);
-
   } catch (std::runtime_error& e) {
     answer = std::string("Server: ") + e.what();
   }

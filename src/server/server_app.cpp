@@ -34,5 +34,5 @@ int main(int argc, char** argv) {
     server.acceptConnections();
   }
 
-  return 0;
+  exit(0);
 }

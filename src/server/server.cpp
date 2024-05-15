@@ -22,8 +22,7 @@
 #include <thread>
 
 Server::Server(int port, bool log) : port_(port), log_(log) {
-  connection_ =
-      std::make_shared<ServerConnection>(std::string("0.0.0.0"), port);
+  connection_ = std::make_shared<ServerConnection>(kDefaultIP, port);
 }
 
 bool Server::startServer() {
@@ -107,9 +106,6 @@ Server::getClients() const {
 }
 
 Server::~Server() {
-  for(auto& client : clients_) {
-    client.second->disconnect();
-  }
   for (auto& thread : client_threads_) {
     if (thread.joinable()) thread.join();
   }
