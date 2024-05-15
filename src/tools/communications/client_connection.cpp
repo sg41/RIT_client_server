@@ -70,7 +70,7 @@ bool ClientConnection::reconnect() {
       tryToConnect();
       connected = true;
       break;
-    } catch (std::runtime_error& e) {
+    } catch (const std::runtime_error& e) {
     }
 
     sleep(retry_timeout_ / 1000);

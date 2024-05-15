@@ -9,6 +9,9 @@
 #include <stdexcept>
 
 bool checkFDHaveData(int fd, int timeout) {
+  if (fd < 0) {
+    throw std::runtime_error("Invalid file descriptor");
+  }
   bool have_data = false;
   fd_set readfds;
   FD_ZERO(&readfds);
@@ -26,7 +29,8 @@ bool checkFDHaveData(int fd, int timeout) {
 
 Connection::Connection(int fd) : sockfd_(fd) {}
 
-Connection::Connection(const std::string& ip, int port) : ip_{ip}, port_{port} {}
+Connection::Connection(const std::string& ip, int port)
+    : ip_{ip}, port_{port} {}
 
 Connection::~Connection() {
   if (sockfd_ >= 0) {

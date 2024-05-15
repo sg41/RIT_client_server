@@ -19,10 +19,11 @@
 #include <thread>
 
 Client::Client(const std::string& ip, int port, bool log)
-    : server_ip_(ip), server_port_(port), log_(log) {}
+    : server_ip_(ip), server_port_(port), log_(log) {
+  connection_ = std::make_shared<ClientConnection>(server_ip_, server_port_);
+}
 
 bool Client::connectToServer() {
-  connection_ = std::make_shared<ClientConnection>(server_ip_, server_port_);
   try {
     connection_->establishConnection();
     if (log_) std::cout << "Client: Connected to server!" << std::endl;

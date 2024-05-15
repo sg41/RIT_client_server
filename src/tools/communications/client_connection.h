@@ -4,9 +4,9 @@
 
 class ClientConnection : public Connection {
  public:
-  ClientConnection(const std::string& ip = "127.0.0.1", int port = 8080,
-                   int retry_timeout = 3000, int max_retries = 3,
-                   bool retry_on_error = true);
+  explicit ClientConnection(const std::string& ip = "127.0.0.1",
+                            int port = 8080, int retry_timeout = 3000,
+                            int max_retries = 3, bool retry_on_error = true);
   void establishConnection() override;
   bool reconnect();
   void sendMessage(const std::string& message) override;

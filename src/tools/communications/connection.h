@@ -24,8 +24,8 @@ bool checkFDHaveData(int fd, int timeout = 100);
 class Connection {
  public:
   explicit Connection(int fd);
-  Connection(const std::string& ip = "0.0.0.0",
-             int port = 8080);  //? maybe move it to derivatives?
+  explicit Connection(const std::string& ip = "0.0.0.0",
+                      int port = 8080);  //? maybe move it to derivatives?
   Connection(const Connection&) = delete;
   Connection& operator=(const Connection&) = delete;
   Connection(Connection&&) = delete;
@@ -35,8 +35,8 @@ class Connection {
   void setEventTimeout(int timeout) { event_timeout_ = timeout; }
   int getEventTimeout() { return event_timeout_; }
 
-  virtual void establishConnection() {};
-  virtual void disconnect() {};
+  virtual void establishConnection(){};
+  virtual void disconnect(){};
   bool checkHaveEvent();
   virtual void sendMessage(const std::string& message);
   virtual std::string receiveMessage();
