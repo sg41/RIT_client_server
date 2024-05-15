@@ -13,10 +13,12 @@
 #include <algorithm>
 
 void Parser::parse(const std::string& message) {
+  has_command_ = false;
   size_t offset = 0;
   command_ = extractTag(message, offset);
 
   if (command_ == kTagNotFound) {
+    argument_ = "";
     return;
   }
 

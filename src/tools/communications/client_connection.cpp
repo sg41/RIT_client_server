@@ -8,7 +8,12 @@
 #include <cstring>
 #include <stdexcept>
 
-void ClientConnection::establishConnection() { reconnect(); }
+void ClientConnection::establishConnection() {
+  if (!reconnect()) {
+    throw std::runtime_error(
+        "EstablishConnection: Error reconnecting to server");
+  };
+}
 
 ClientConnection::ClientConnection(const std::string& ip, int port,
                                    int retry_timeout, int max_retries,

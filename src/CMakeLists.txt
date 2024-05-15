@@ -27,10 +27,15 @@ set_target_properties(client server PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_
 set_target_properties(client server PROPERTIES CXX_STANDARD 17)
 
 # Указываем заголовочные файлы, если они есть
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} client server tools) 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} 
+    client 
+    server 
+    tools/parser
+    tools/communications
+    ) 
 
-target_link_libraries(server parser)
-target_link_libraries(client parser)
+target_link_libraries(server parser communications)
+target_link_libraries(client parser communications)
 
 # Тесты =====================================================================================
 find_package(GTest REQUIRED)
@@ -49,7 +54,7 @@ add_executable(client_test
     server/client_handler.cpp
     )
 
-target_link_libraries(client_test ${GTEST_MAIN_LIBRARIES} parser)
+target_link_libraries(client_test ${GTEST_MAIN_LIBRARIES} parser communications)
 target_link_libraries(parser_test ${GTEST_MAIN_LIBRARIES} parser)
 
 # Указываем выходную директорию для исполняемых файлов

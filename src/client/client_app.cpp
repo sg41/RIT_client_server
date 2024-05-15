@@ -10,12 +10,6 @@
  */
 #include "client_app.h"
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
 #include <chrono>
 #include <cstring>
 #include <future>
@@ -31,20 +25,18 @@ ClientApp::ClientApp(const std::string& server_ip, int server_port, bool log)
     : client_(server_ip, server_port, log) {}
 
 bool ClientApp::connectToServer() {
-  if (!client_.connectToServer() && !client_.reconnect()) {
-    return false;
-  }
-  return true;
+  return client_.connectToServer();
+  // if (!client_.connectToServer() && !client_.reconnect()) {
+  //   return false;
+  // }
+  // return true;
 }
 
-ClientApp::Event ClientApp::eventLoop() {
+Event ClientApp::eventLoop() {
   while (running_) {
-    if (client_.checkHaveMessage(client_.getSocketFD())) {
-      return Event::kServerMessage;
-    }
-    if (client_.checkHaveMessage(STDIN_FILENO)) {
-      std::getline(std::cin, message_);
-      return Event::kUserInput;
+    auto event = client_.checkHaveEvent();
+    if (event != Event::kNoEvent) {
+      return event;
     }
   }
   return Event::kNoEvent;
@@ -111,7 +103,6 @@ int ClientApp::run() {
 
     // Check if the client has a message from server or from user input
     Event event = eventLoop();
-    parser.parse(message_);
 
     switch (event) {
       case Event::kServerMessage:
@@ -124,6 +115,7 @@ int ClientApp::run() {
         }
         break;
       case Event::kUserInput:  // Got user message block:
+        std::getline(std::cin, message_);
         if (std::cin.eof()) {
           running_ = false;
           break;
@@ -131,6 +123,7 @@ int ClientApp::run() {
         if (message_ == "") {
           break;
         }
+        parser.parse(message_);
         if (parser.hasCommand()) {  // Execute client-side commands
           valid_commands_[parser.getCommand()](this);
           break;

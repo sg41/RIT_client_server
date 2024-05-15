@@ -64,11 +64,11 @@ TEST_F(ClientTest, TestReconnect) {
 
 TEST_F(ClientTest, TestCheckHaveMessage) {
   Client client(kTestServerIP, kTestServerPort);
-  EXPECT_FALSE(client.checkHaveMessage(client.getSocketFD()));
+  EXPECT_FALSE(client.checkHaveEvent() == Event::kServerMessage);
   ASSERT_TRUE(client.connectToServer());
-  EXPECT_FALSE(client.checkHaveMessage(client.getSocketFD()));
+  EXPECT_FALSE(client.checkHaveEvent() == Event::kServerMessage);
   ASSERT_TRUE(client.sendMessage("Test message"));
   std::this_thread::sleep_for(
       std::chrono::milliseconds(500));  // Wait for server to respond
-  EXPECT_TRUE(client.checkHaveMessage(client.getSocketFD()));
+  EXPECT_TRUE(client.checkHaveEvent() == Event::kServerMessage);
 }

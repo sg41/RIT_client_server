@@ -10,11 +10,15 @@
  */
 #ifndef CLIENT_CLIENT_H
 #define CLIENT_CLIENT_H
+#include <memory>
 #include <string>
 
-const int kMaxRetries = 3;
-const int kRetryTimeout = 3;
-const int kBufferSize = 1024;
+#include "client_connection.h"
+
+// const int kMaxRetries = 3;
+// const int kRetryTimeout = 3;
+// const int kBufferSize = 1024;
+enum class Event { kUserInput, kServerMessage, kNoEvent };
 
 /**
  * @brief The Client class represents a client that connects to a server.
@@ -34,15 +38,6 @@ class Client {
   Client(const std::string& ip, int port, bool log = false);
 
   /**
-   * Rule of 5 implementation
-   */
-  Client(const Client&) = delete;
-  Client& operator=(const Client&) = delete;
-  Client(Client&&) = delete;
-  Client& operator=(Client&&) = delete;
-  ~Client();
-
-  /**
    * Connects to the server. No retries are done in case of failure.
    *
    * @return true if the connection is successful, false otherwise.
@@ -58,7 +53,7 @@ class Client {
    *
    * @throws None
    */
-  bool checkHaveMessage(int fd);
+  Event checkHaveEvent();
   /**
    * Sends a message over the socket connection.
    *
@@ -88,12 +83,13 @@ class Client {
    * @throws None
    */
   bool reconnect();
-  auto getSocketFD() const { return sockfd_; }
+  // auto getSocketFD() const { return sockfd_; }
 
  private:
   std::string server_ip_;
   int server_port_;
-  int sockfd_ = -1;
+  // int sockfd_ = -1;
+  std::shared_ptr<ClientConnection> connection_;
   bool log_ = false;
 };
 

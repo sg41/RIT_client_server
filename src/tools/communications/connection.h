@@ -36,7 +36,7 @@ class Connection {
   int getEventTimeout() { return event_timeout_; }
 
   virtual void establishConnection() {};
-  virtual void disconnect();
+  virtual void disconnect() {};
   bool checkHaveEvent();
   virtual void sendMessage(const std::string& message);
   virtual std::string receiveMessage();

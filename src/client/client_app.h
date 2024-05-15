@@ -24,7 +24,6 @@
  */
 class ClientApp {
  public:
-  enum class Event { kUserInput, kServerMessage, kNoEvent };
   ClientApp(const std::string& server_ip, int server_port, bool log = false);
 
   /**
