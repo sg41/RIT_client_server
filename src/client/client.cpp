@@ -62,13 +62,3 @@ bool Client::receiveMessage(std::string& message) {
   }
   return true;
 }
-
-bool Client::reconnect() {
-  try {
-    connection_->reconnect();
-  } catch (std::runtime_error& e) {
-    if (log_) std::cout << "Client: " << e.what() << std::endl << std::endl;
-    return false;
-  }
-  return true;
-}

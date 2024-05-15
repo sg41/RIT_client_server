@@ -24,13 +24,7 @@
 ClientApp::ClientApp(const std::string& server_ip, int server_port, bool log)
     : client_(server_ip, server_port, log) {}
 
-bool ClientApp::connectToServer() {
-  return client_.connectToServer();
-  // if (!client_.connectToServer() && !client_.reconnect()) {
-  //   return false;
-  // }
-  // return true;
-}
+bool ClientApp::connectToServer() { return client_.connectToServer(); }
 
 Event ClientApp::eventLoop() {
   while (running_) {
@@ -44,7 +38,7 @@ Event ClientApp::eventLoop() {
 
 bool ClientApp::receiveServerMessage(std::string& response) {
   if (!client_.receiveMessage(response)) {
-    return client_.reconnect();
+    return false;
   }
   return true;
 }
@@ -53,9 +47,7 @@ bool ClientApp::talkToServer(std::string& response) {
   bool got_error = false;
   // Sending user input to server
   if (!client_.sendMessage(message_)) {
-    if (!client_.reconnect()) {
-      got_error = true;
-    }
+    got_error = true;
   }
 
   // Receiving response from server

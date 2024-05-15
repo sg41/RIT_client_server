@@ -15,9 +15,6 @@
 
 #include "client_connection.h"
 
-// const int kMaxRetries = 3;
-// const int kRetryTimeout = 3;
-// const int kBufferSize = 1024;
 enum class Event { kUserInput, kServerMessage, kNoEvent };
 
 /**
@@ -75,20 +72,10 @@ class Client {
    * @throws None
    */
   bool receiveMessage(std::string& message);
-  /**
-   * Try to reconnect to the server up to kMaxRetries times.
-   *
-   * @return true if the reconnection is successful, false otherwise.
-   *
-   * @throws None
-   */
-  bool reconnect();
-  // auto getSocketFD() const { return sockfd_; }
 
  private:
   std::string server_ip_;
   int server_port_;
-  // int sockfd_ = -1;
   std::shared_ptr<ClientConnection> connection_;
   bool log_ = false;
 };

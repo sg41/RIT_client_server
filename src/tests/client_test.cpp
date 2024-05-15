@@ -59,7 +59,6 @@ TEST_F(ClientTest, TestReceiveMessage) {
 TEST_F(ClientTest, TestReconnect) {
   Client client(kTestServerIP, kTestServerPort);
   ASSERT_TRUE(client.connectToServer());
-  EXPECT_TRUE(client.reconnect());
 }
 
 TEST_F(ClientTest, TestCheckHaveMessage) {
