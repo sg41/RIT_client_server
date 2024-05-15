@@ -8,6 +8,22 @@
 #include <cstring>
 #include <stdexcept>
 
+bool checkFDHaveData(int fd, int timeout) {
+  bool have_data = false;
+  fd_set readfds;
+  FD_ZERO(&readfds);
+  FD_SET(fd, &readfds);
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = timeout;
+  int result = select(fd + 1, &readfds, NULL, NULL, &tv);
+  if (result > 0 && FD_ISSET(fd, &readfds)) {
+    have_data = true;
+  }
+
+  return have_data;
+}
+
 Connection::Connection(std::string ip, int port) : ip_{ip}, port_{port} {}
 
 Connection::~Connection() {
@@ -57,20 +73,8 @@ void ClientConnection::establishConnection() {
   }
 }
 
-bool Connection::checkHaveMessage(int fd, int timeout) {
-  bool have_data = false;
-  fd_set readfds;
-  FD_ZERO(&readfds);
-  FD_SET(fd, &readfds);
-  struct timeval tv;
-  tv.tv_sec = 0;
-  tv.tv_usec = timeout;
-  int result = select(fd + 1, &readfds, NULL, NULL, &tv);
-  if (result > 0 && FD_ISSET(fd, &readfds)) {
-    have_data = true;
-  }
-
-  return have_data;
+bool Connection::checkHaveEvent() {
+  return ::checkFDHaveData(sockfd_, event_timeout_);
 }
 
 void Connection::sendMessage(const std::string& message) {
@@ -89,12 +93,32 @@ std::string Connection::receiveMessage() {
   return std::string(buffer, bytes_received);
 }
 
-bool ClientConnection::reconnect(int timeout, int maxAttempts) {
+void ClientConnection::sendMessage(const std::string& message) {
+  try {
+    Connection::sendMessage(message);
+  } catch (std::runtime_error& e) {
+    if (retry_on_error_ && !reconnect()) {
+      throw std::runtime_error("SendMessage: Error reconnecting to server");
+    }
+  }
+}
+
+std::string ClientConnection::receiveMessage() {
+  try {
+    return Connection::receiveMessage();
+  } catch (std::runtime_error& e) {
+    if (retry_on_error_ && !reconnect()) {
+      throw std::runtime_error("ReceiveMessage: Error reconnecting to server");
+    }
+  }
+  return "";
+}
+bool ClientConnection::reconnect() {
   bool connected = false;
   int attempt = 0;
   if (sockfd_ >= 0) close(sockfd_);
   sockfd_ = -1;
-  while (attempt++ < maxAttempts) {
+  while (attempt++ < max_retries_) {
     try {
       establishConnection();
       connected = true;
@@ -102,8 +126,14 @@ bool ClientConnection::reconnect(int timeout, int maxAttempts) {
     } catch (std::runtime_error& e) {
     }
 
-    sleep(timeout);
+    sleep(retry_timeout_ / 1000);
   }
 
   return connected;
 }
+ClientConnection::ClientConnection(std::string ip, int port, int retry_timeout,
+                                   int max_retries, bool retry_on_error)
+    : Connection(ip, port),
+      retry_timeout_(retry_timeout),
+      max_retries_(max_retries),
+      retry_on_error_(retry_on_error) {}

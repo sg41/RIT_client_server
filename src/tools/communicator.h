@@ -12,10 +12,15 @@
 #ifndef TOOLS_COMMUNICATOR_H
 #define TOOLS_COMMUNICATOR_H
 #include <string>
+
 const int kMaxRetries = 3;
 const int kRetryTimeout = 3;
 const int kBufferSize = 1024;
+
 typedef enum class SocketType { kServer, kClient };
+
+bool checkFDHaveData(int fd, int timeout = 100);
+
 class Connection {
  public:
   Connection(std::string ip = "0.0.0.0", int port = 8080);
@@ -24,18 +29,21 @@ class Connection {
   Connection(Connection&&) = delete;
   Connection& operator=(Connection&&) = delete;
   virtual ~Connection();
+  void setEventTimeout(int timeout) { event_timeout_ = timeout; }
+  int getEventTimeout() { return event_timeout_; }
 
-  virtual void establishConnection();
+  virtual void establishConnection() = 0;
   virtual void disconnect();
-  bool checkHaveMessage(int fd, int timeout = 100);
-  void sendMessage(const std::string& message);
-  std::string receiveMessage();
+  bool checkHaveEvent();
+  virtual void sendMessage(const std::string& message);
+  virtual std::string receiveMessage();
 
  protected:
   SocketType type_ = SocketType::kServer;
   std::string ip_ = "0.0.0.0";
   int port_ = 8080;
   int sockfd_ = -1;
+  int event_timeout_ = 100;
 };
 
 class ServerConnection : public Connection {
@@ -46,7 +54,17 @@ class ServerConnection : public Connection {
 };
 
 class ClientConnection : public Connection {
+  ClientConnection(std::string ip = "127.0.0.1", int port = 8080,
+                   int retry_timeout = 3000, int max_retries = 3,
+                   bool retry_on_error = true);
   void establishConnection() override;
-  bool reconnect(int timeout = 3, int maxAttempts = 0);
+  bool reconnect();
+  void sendMessage(const std::string& message) override;
+  std::string receiveMessage() override;
+
+ protected:
+  int retry_timeout_ = 3000;
+  int max_retries_ = 3;
+  bool retry_on_error_ = true;
 };
 #endif  // TOOLS_COMMUNICATOR_H
