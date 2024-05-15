@@ -17,6 +17,7 @@
 
 class ServerConnection : public Connection {
  public:
+  using Connection::Connection;
   void establishConnection() override;
   bool checkNewIncomingConnection();
   std::shared_ptr<Connection> acceptIncomingConnection();

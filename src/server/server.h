@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "client_handler.h"
+#include "server_connection.h"
 
 /**
  * The Server class represents a TCP/IP server that listens for incoming
@@ -94,9 +95,10 @@ class Server {
   bool isRunning() const { return is_running_; }
 
  private:
-  bool is_running_ = false;
+  std::atomic<bool> is_running_ = false;
   std::mutex server_mutex_;
-  int server_socket_ = -1;
+  std::shared_ptr<ServerConnection> connection_;
+  //   int server_socket_ = -1;
   int port_ = 8080;  // Default port
   bool log_ = false;
   std::map<std::string, std::shared_ptr<ClientHandler>>

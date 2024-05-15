@@ -12,6 +12,7 @@
 #define SERVER_CLIENT_HANDLER_H
 #include <unordered_map>
 
+#include "connection.h"
 #include "parser.h"
 class Server;
 
@@ -38,15 +39,15 @@ class Server;
  */
 class ClientHandler {
  public:
-  ClientHandler(int socket, const std::string& id, Server* server);
+  ClientHandler(std::shared_ptr<Connection>&& connection, const std::string& id,
+                Server* server);
   /**
    * Rule of 5 implementation
    */
-  ClientHandler(const ClientHandler&) = delete;
-  ClientHandler(ClientHandler&&) = delete;
-  ClientHandler& operator=(const ClientHandler&) = delete;
-  ClientHandler& operator=(ClientHandler&&) = delete;
-  ~ClientHandler();
+  // ClientHandler(const ClientHandler&) = delete;
+  // ClientHandler(ClientHandler&&) = delete;
+  // ClientHandler& operator=(const ClientHandler&) = delete;
+  // ClientHandler& operator=(ClientHandler&&) = delete;
 
   void handleClient();
 
@@ -124,8 +125,9 @@ class ClientHandler {
   std::string shutdownServer(const std::string& message);
 
  private:
-  int client_socket = -1;  // To store the client socket
-  std::string client_id;   // To store the unique client ID
-  Server* server;          // Reference to the server for message routing
+  std::shared_ptr<Connection> connection_;
+  // int client_socket = -1;  // To store the client socket
+  std::string client_id;  // To store the unique client ID
+  Server* server;         // Reference to the server for message routing
 };
 #endif  // SERVER_CLIENT_HANDLER_H

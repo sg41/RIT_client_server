@@ -28,8 +28,8 @@ class Connection {
                       int port = 8080);  //? maybe move it to derivatives?
   Connection(const Connection&) = delete;
   Connection& operator=(const Connection&) = delete;
-  Connection(Connection&&) = delete;
-  Connection& operator=(Connection&&) = delete;
+  Connection(Connection&&) = default;
+  Connection& operator=(Connection&&) = default;
   virtual ~Connection();
 
   void setEventTimeout(int timeout) { event_timeout_ = timeout; }
