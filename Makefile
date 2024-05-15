@@ -4,7 +4,7 @@ DOCS_DIR = docs
 CMAKE_FLAGS = 
 UNAME:=$(shell uname)
 SOURCES = $(shell find . -name "*.cpp") $(shell find . -name "*.h")
-SERVER_MODE = silent
+# SERVER_MODE = silent
 ifeq ($(UNAME), Darwin)
 	PYTEST = python3 -m pytest
 	LEAKS = leaks --atExit --

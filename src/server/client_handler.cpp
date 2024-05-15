@@ -46,7 +46,7 @@ void ClientHandler::handleClient() {
 
   server->removeClient(client_id);
   if (server->isLogEnabled())
-    std::cout << "Serve: Client disconnected." << std::endl;
+    std::cout << "Server: Client disconnected." << std::endl;
 }
 
 std::string ClientHandler::receiveMessage() {
@@ -146,3 +146,5 @@ std::string ClientHandler::shutdownServer(
   server->shutdown();
   return "Server shut down";
 }
+
+void ClientHandler::disconnect() { connection_->disconnect(); }

@@ -10,6 +10,7 @@
  */
 #ifndef SERVER_SERVER_H
 #define SERVER_SERVER_H
+#include <atomic>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -96,9 +97,9 @@ class Server {
 
  private:
   std::atomic<bool> is_running_ = false;
+  //   bool is_running_ = false;
   std::mutex server_mutex_;
   std::shared_ptr<ServerConnection> connection_;
-  //   int server_socket_ = -1;
   int port_ = 8080;  // Default port
   bool log_ = false;
   std::map<std::string, std::shared_ptr<ClientHandler>>

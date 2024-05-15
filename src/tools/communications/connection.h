@@ -13,19 +13,19 @@
 #define TOOLS_COMMUNICATIONS_CONNECTION_H
 #include <string>
 
-const int kMaxRetries = 3;
-const int kRetryTimeout = 3;
-const int kBufferSize = 1024;
-
-// typedef enum class SocketType { kServer, kClient };
+const int kEventTimeout = 50;   //< Default event  timeout in milliseconds
+const int kBufferSize = 1024;   //< Default Buffer Size
+const int kDefaultPort = 8080;  //< Default port
+const std::string kDefaultIP = "0.0.0.0";  //< Default IP
 
 bool checkFDHaveData(int fd, int timeout = 100);
 
 class Connection {
  public:
   explicit Connection(int fd);
-  explicit Connection(const std::string& ip = "0.0.0.0",
-                      int port = 8080);  //? maybe move it to derivatives?
+  explicit Connection(
+      const std::string& ip = kDefaultIP,
+      int port = kDefaultPort);  //? maybe move it to derivatives?
   Connection(const Connection&) = delete;
   Connection& operator=(const Connection&) = delete;
   Connection(Connection&&) = default;
@@ -35,18 +35,17 @@ class Connection {
   void setEventTimeout(int timeout) { event_timeout_ = timeout; }
   int getEventTimeout() { return event_timeout_; }
 
-  virtual void establishConnection(){};
-  virtual void disconnect(){};
+  virtual void establishConnection() {};
+  void disconnect();
   bool checkHaveEvent();
   virtual void sendMessage(const std::string& message);
   virtual std::string receiveMessage();
 
  protected:
-  // SocketType type_ = SocketType::kServer;
-  std::string ip_ = "0.0.0.0";
-  int port_ = 8080;
+  std::string ip_ = kDefaultIP;
+  int port_ = kDefaultPort;
   int sockfd_ = -1;
-  int event_timeout_ = 100;
+  int event_timeout_ = kEventTimeout;
 };
 
 #endif  // TOOLS_COMMUNICATIONS_CONNECTION_H

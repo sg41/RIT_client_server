@@ -10,7 +10,7 @@
 
 bool checkFDHaveData(int fd, int timeout) {
   if (fd < 0) {
-    throw std::runtime_error("Invalid file descriptor");
+    throw std::runtime_error("checkFDHaveData: Invalid file descriptor");
   }
   bool have_data = false;
   fd_set readfds;
@@ -32,9 +32,12 @@ Connection::Connection(int fd) : sockfd_(fd) {}
 Connection::Connection(const std::string& ip, int port)
     : ip_{ip}, port_{port} {}
 
-Connection::~Connection() {
+Connection::~Connection() { disconnect(); }
+
+void Connection::disconnect() {
   if (sockfd_ >= 0) {
     close(sockfd_);
+    sockfd_ = -1;
   }
 }
 
@@ -45,7 +48,7 @@ bool Connection::checkHaveEvent() {
 void Connection::sendMessage(const std::string& message) {
   size_t result = send(sockfd_, message.c_str(), message.length(), 0);
   if (result != message.length()) {
-    throw std::runtime_error("Error sending message");
+    throw std::runtime_error("sendMessage: Error sending message");
   }
 }
 
@@ -53,7 +56,8 @@ std::string Connection::receiveMessage() {
   char buffer[kBufferSize] = {0};
   int bytes_received = recv(sockfd_, buffer, kBufferSize, 0);
   if (bytes_received <= 0) {
-    throw std::runtime_error("Error receiving message or connection closed");
+    throw std::runtime_error(
+        "receiveMessage: Error receiving message or connection closed");
   }
   return std::string(buffer, bytes_received);
 }

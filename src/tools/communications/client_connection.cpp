@@ -5,8 +5,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <cstring>
 #include <stdexcept>
+#include <thread>
 
 void ClientConnection::establishConnection() {
   if (!reconnect()) {
@@ -26,7 +28,7 @@ ClientConnection::ClientConnection(const std::string& ip, int port,
 void ClientConnection::tryToConnect() {
   sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd_ < 0) {
-    throw std::runtime_error("Error creating socket");
+    throw std::runtime_error("tryToConnect: Error creating socket");
   }
 
   sockaddr_in serv_addr;
@@ -36,7 +38,7 @@ void ClientConnection::tryToConnect() {
   inet_pton(AF_INET, ip_.c_str(), &serv_addr.sin_addr);
 
   if (connect(sockfd_, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-    throw std::runtime_error("Error connecting to server");
+    throw std::runtime_error("tryToConnect: Error connecting to server");
   }
 }
 
@@ -73,7 +75,8 @@ bool ClientConnection::reconnect() {
     } catch (const std::runtime_error& e) {
     }
 
-    sleep(retry_timeout_ / 1000);
+    // sleep(retry_timeout_ / 1000);  // Convert timeout to seconds
+    std::this_thread::sleep_for(std::chrono::milliseconds(retry_timeout_));
   }
 
   return connected;

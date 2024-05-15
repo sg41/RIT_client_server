@@ -62,3 +62,5 @@ bool Client::receiveMessage(std::string& message) {
   }
   return true;
 }
+
+void Client::disconnect() { connection_->disconnect(); }

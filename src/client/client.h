@@ -72,6 +72,7 @@ class Client {
    * @throws None
    */
   bool receiveMessage(std::string& message);
+  void disconnect();
 
  private:
   std::string server_ip_;

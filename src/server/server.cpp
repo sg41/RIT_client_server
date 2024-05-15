@@ -71,8 +71,8 @@ void Server::acceptNewClient() {
 }
 
 void Server::shutdown() {
-  // std::lock_guard<std::mutex> lock(server_mutex_);
   is_running_ = false;
+  connection_->disconnect();
 }
 
 void Server::removeClient(const std::string& client_id) {
@@ -107,6 +107,9 @@ Server::getClients() const {
 }
 
 Server::~Server() {
+  for(auto& client : clients_) {
+    client.second->disconnect();
+  }
   for (auto& thread : client_threads_) {
     if (thread.joinable()) thread.join();
   }
