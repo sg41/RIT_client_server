@@ -45,6 +45,10 @@ class ClientApp {
    * @throws None
    */
   int run();
+  bool talkToServer(std::string& response);
+  void shutdownServer();
+  void performExit();
+  void showHelp();
 
  private:
   /**
@@ -84,10 +88,6 @@ class ClientApp {
    *
    * @throws None
    */
-  bool talkToServer(std::string& response);
-  void shutdownServer();
-  void performExit();
-  void showHelp();
 
  private:
   Client client_;

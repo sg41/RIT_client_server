@@ -6,7 +6,8 @@ project(RIT_Client_Server
 )
 
 # Определяем две исполняемые цели: клиент и сервер
-add_subdirectory(tools)
+add_subdirectory(tools/parser)
+add_subdirectory(tools/communications)
 add_executable(client 
     client/client_app.cpp 
     client/client.cpp
