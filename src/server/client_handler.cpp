@@ -32,7 +32,11 @@ ClientHandler::ClientHandler(std::shared_ptr<Connection>&& connection,
 void ClientHandler::handleClient() {
   std::string message;
   while (server->isRunning()) {
-    message = receiveMessage();
+    if (connection_->checkHaveEvent()) {
+      message = receiveMessage();
+    } else {
+      continue;
+    }
     if (message.empty()) {
       break;  // Client disconnected
     }

@@ -71,7 +71,7 @@ void Server::acceptNewClient() {
 
 void Server::shutdown() {
   is_running_ = false;
-  connection_->disconnect();
+  // connection_->disconnect();
 }
 
 void Server::removeClient(const std::string& client_id) {
