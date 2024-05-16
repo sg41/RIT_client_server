@@ -1,3 +1,13 @@
+/**
+ * @file server_connection.cpp
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Server connection class implementation
+ * @version 0.1
+ * @date 2024-05-16
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #include "server_connection.h"
 
 #include <arpa/inet.h>

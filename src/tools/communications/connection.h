@@ -18,8 +18,31 @@ const int kBufferSize = 1024;   //< Default Buffer Size
 const int kDefaultPort = 8080;  //< Default port
 const std::string kDefaultIP = "0.0.0.0";  //< Default IP
 
+/**
+ * Check if there is data available to read on the given file descriptor within
+ * the specified timeout.
+ *
+ * @param fd The file descriptor to check.
+ * @param timeout The timeout value in microseconds.
+ *
+ * @return true if there is data available to read, false otherwise.
+ *
+ * @throws std::runtime_error if the file descriptor is invalid.
+ */
 bool checkFDHaveData(int fd, int timeout = 100);
 
+/**
+ * @brief The `Connection` class represents a generic connection with basic
+ * functionality for establishing, managing, and communicating over a network
+ * connection. It provides methods for establishing a connection, sending and
+ * receiving messages, setting event timeouts, and disconnecting from the
+ * connection. The class can be used as a base class for specific types of
+ * connections, such as TCP or UDP connections, by deriving from it and
+ * implementing the necessary functionality for those specific types.
+ * This class could be used to serve client connection on server side or ther
+ * cases, where connetion is already established and represented dy file
+ * descriptor.
+ */
 class Connection {
  public:
   explicit Connection(int fd);
@@ -39,7 +62,7 @@ class Connection {
   void disconnect();
   bool checkHaveEvent();
   virtual void sendMessage(const std::string& message);
-  virtual std::string receiveMessage();
+  virtual std::string receiveMessage();  //< blocking read
 
  protected:
   std::string ip_ = kDefaultIP;

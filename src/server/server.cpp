@@ -69,10 +69,7 @@ void Server::acceptNewClient() {
               << std::endl;
 }
 
-void Server::shutdown() {
-  is_running_ = false;
-  // connection_->disconnect();
-}
+void Server::shutdown() { is_running_ = false; }
 
 void Server::removeClient(const std::string& client_id) {
   std::lock_guard<std::mutex> lock(server_mutex_);

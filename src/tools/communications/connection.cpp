@@ -1,3 +1,13 @@
+/**
+ * @file connection.cpp
+ * @author Sergey Gorbatenko (sg41@mail.ru)
+ * @brief Connection class implementation
+ * @version 0.1
+ * @date 2024-05-16
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 #include "connection.h"
 
 #include <arpa/inet.h>
