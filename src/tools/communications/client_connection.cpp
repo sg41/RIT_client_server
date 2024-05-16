@@ -35,6 +35,7 @@ ClientConnection::ClientConnection(const std::string& ip, int port,
       max_retries_(max_retries),
       retry_on_error_(retry_on_error) {}
 
+// TODO: make it nonblocking
 void ClientConnection::tryToConnect() {
   sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd_ < 0) {
@@ -85,7 +86,6 @@ bool ClientConnection::reconnect() {
     } catch (const std::runtime_error& e) {
     }
 
-    // sleep(retry_timeout_ / 1000);  // Convert timeout to seconds
     std::this_thread::sleep_for(std::chrono::milliseconds(retry_timeout_));
   }
 

@@ -28,10 +28,9 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  auto exit_code = client.run();
+  client.run();
+
   std::cout << "\nBye!" << std::endl;
-  if (exit_code != 0) {
-    std::exit(0);
-  }
+
   return 0;
 }
