@@ -79,6 +79,7 @@ void Server::removeClient(const std::string& client_id) {
   }
 }
 
+// TODO: Maybe sending message is a duty of ClientHandler
 bool Server::routeMessage(const std::string& sender_id,
                           const std::string& receiver_id,
                           const std::string& message) {
