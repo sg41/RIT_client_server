@@ -21,7 +21,7 @@ def run_test(app, data, **kwargs):
 
 def test_simpleMessage():
     res = run_test(["build/client", "127.0.0.1", "8080"], "12345\n")
-    expected = ["Connected to server: success",
+    expected = ["Client: Connected to server!",
                 "> Server: ",
                 "Message |12345",
                 "1       |1",
@@ -44,7 +44,7 @@ def test_showList():
     t.start()
     time.sleep(1)
     res = run_test(["build/client", "127.0.0.1", "8080"], "show list\n")
-    expected = ["Connected to server: success",
+    expected = ["Client: Connected to server!",
                 "> Server: ",
                 "Client ID:",
                 "client_[0-9]+",
@@ -66,7 +66,7 @@ def test_showNumber():
             "build/client", "127.0.0.1", "8080"], f"show number\n"), kwargs={"timeout": 1}))
         threads[i].start()
     res = run_test(["build/client", "127.0.0.1", "8080"], "show number\n")
-    expected = ["Connected to server: success",
+    expected = ["Client: Connected to server!",
                 "^> Server: [1-6]$",
                 "> ",
                 "Bye!",
@@ -86,7 +86,7 @@ def test_sendMessageOk():
     res = run_test(["build/client", "127.0.0.1", "8080"], "show list\n")
     res2 = run_test(["build/client", "127.0.0.1", "8080"],
                     "send<"+res[3]+">message\n")
-    expected = ["Connected to server: success",
+    expected = ["Client: Connected to server!",
                 "^> Server: Message sent$",
                 "> ",
                 "Bye!",
@@ -100,7 +100,7 @@ def test_sendMessageOk():
 def test_sendMessageError():
     res2 = run_test(["build/client", "127.0.0.1", "8080"],
                     "send<client_0>message\n")
-    expected = ["Connected to server: success",
+    expected = ["Client: Connected to server!",
                 "^> Server: Error$",
                 "> ",
                 "Bye!",
@@ -112,7 +112,7 @@ def test_sendMessageError():
 def test_SendMessageSelf():
     res2 = run_test(["build/client", "127.0.0.1", "8080"],
                     "send<self>message\n")
-    expected = ["Connected to server: success",
+    expected = ["Client: Connected to server!",
                 "^> Server: client_[0-9]+: message$",
                 "> ",
                 "Bye!",

@@ -6,7 +6,8 @@ project(RIT_Client_Server
 )
 
 # Определяем две исполняемые цели: клиент и сервер
-add_subdirectory(tools)
+add_subdirectory(tools/parser)
+add_subdirectory(tools/communications)
 add_executable(client 
     client/client_app.cpp 
     client/client.cpp
@@ -26,10 +27,15 @@ set_target_properties(client server PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_
 set_target_properties(client server PROPERTIES CXX_STANDARD 17)
 
 # Указываем заголовочные файлы, если они есть
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} client server tools) 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} 
+    client 
+    server 
+    tools/parser
+    tools/communications
+    ) 
 
-target_link_libraries(server parser)
-target_link_libraries(client parser)
+target_link_libraries(server parser communications)
+target_link_libraries(client parser communications)
 
 # Тесты =====================================================================================
 find_package(GTest REQUIRED)
@@ -48,7 +54,7 @@ add_executable(client_test
     server/client_handler.cpp
     )
 
-target_link_libraries(client_test ${GTEST_MAIN_LIBRARIES} parser)
+target_link_libraries(client_test ${GTEST_MAIN_LIBRARIES} parser communications)
 target_link_libraries(parser_test ${GTEST_MAIN_LIBRARIES} parser)
 
 # Указываем выходную директорию для исполняемых файлов
@@ -66,14 +72,12 @@ if (${COVERAGE})
     target_compile_options(client PUBLIC --coverage)
     target_compile_options(server PUBLIC --coverage)
     target_compile_options(parser PUBLIC --coverage)
+    target_compile_options(communications PUBLIC --coverage)
     target_link_options(client_test PUBLIC --coverage)
     target_link_options(parser_test PUBLIC --coverage)
     target_link_options(client PUBLIC --coverage)
     target_link_options(server PUBLIC --coverage)
     target_link_options(parser PUBLIC --coverage)
-    # target_link_libraries(client_test gcov)
-    # target_link_libraries(parser_test gcov)
-    # target_link_libraries(client gcov)
-    # target_link_libraries(server gcov)
+    target_link_options(communications PUBLIC --coverage)
 endif()
 

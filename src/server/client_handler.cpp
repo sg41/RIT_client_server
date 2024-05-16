@@ -25,46 +25,54 @@
 #include "command.h"
 #include "server.h"
 
-ClientHandler::ClientHandler(int socket, const std::string& id, Server* server)
-    : client_socket(socket), client_id(id), server(server) {}
-
-ClientHandler::~ClientHandler() {
-  if (client_socket >= 0) close(client_socket);
-}
-
-// std::string ClientHandler::getClientID() const { return client_id; }
+ClientHandler::ClientHandler(std::shared_ptr<Connection>&& connection,
+                             const std::string& id, Server* server)
+    : connection_(connection), client_id(id), server(server) {}
 
 void ClientHandler::handleClient() {
+  std::string message;
   while (server->isRunning()) {
-    std::string message = receiveMessage();
+    if (connection_->checkHaveEvent()) {
+      message = receiveMessage();
+    } else {
+      continue;
+    }
     if (message.empty()) {
       break;  // Client disconnected
     }
-
     // Process message and send response
     if (server->isLogEnabled())
-      std::cout << "Server received from " << client_id << ": " << message
+      std::cout << "Server: received from " << client_id << ": " << message
                 << std::endl;
     std::string response = processMessage(message);
     sendMessage(response);
   }
 
   server->removeClient(client_id);
-  if (server->isLogEnabled()) std::cout << "Client disconnected." << std::endl;
+  if (server->isLogEnabled())
+    std::cout << "Server: Client disconnected." << std::endl;
 }
 
 std::string ClientHandler::receiveMessage() {
-  char buffer[1024] = {0};
-  int bytes_received = recv(client_socket, buffer, 1024, 0);
-  if (bytes_received <= 0) {
-    return "";
+  std::string message;
+  try {
+    message = connection_->receiveMessage();
+  } catch (std::runtime_error& e) {
+    if (server->isLogEnabled())
+      std::cout << "Server: Error receiving message: " << e.what() << std::endl;
+    message = "";
   }
-  return std::string(buffer, bytes_received);
+  return message;
 }
 
 std::string ClientHandler::sendMessage(const std::string& message) {
-  size_t result = send(client_socket, message.c_str(), message.length(), 0);
-  return result == message.length() ? "Ok" : "Error";
+  std::string answer = "Ok";
+  try {
+    connection_->sendMessage(message);
+  } catch (std::runtime_error& e) {
+    answer = std::string("Server: ") + e.what();
+  }
+  return answer;
 }
 
 std::string ClientHandler::countLetters(const std::string& message) {
@@ -88,7 +96,8 @@ std::string ClientHandler::processMessage(const std::string& message) {
   // std::map<std::string, std::unique_ptr<Command>> commands;
   // commands["send"] = std::make_unique<CommunicateCommand>();
   // commands["show"] = std::make_unique<ShowCommand>();
-  std::map<std::string, std::string (ClientHandler::*)(const std::string&)>
+  static const std::map<std::string,
+                        std::string (ClientHandler::*)(const std::string&)>
       commands{{"send", &ClientHandler::sendMessageToClient},
                {"show", &ClientHandler::showConnections},
                {"shutdown", &ClientHandler::shutdownServer}};
@@ -106,8 +115,6 @@ std::string ClientHandler::processMessage(const std::string& message) {
     return "Unknown command.";
   }
 }
-
-// const Server* ClientHandler::getServer() const { return server; }
 
 std::string ClientHandler::showConnections(const std::string& message) {
   Parser parser(message, {"number", "list", "count"}, "", "");
@@ -150,3 +157,5 @@ std::string ClientHandler::shutdownServer(
   server->shutdown();
   return "Server shut down";
 }
+
+void ClientHandler::disconnect() { connection_->disconnect(); }

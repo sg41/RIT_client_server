@@ -139,3 +139,16 @@ TEST(ParserTest, TestTemplateConstructor) {
   EXPECT_EQ(parser.getCommand(), "command");
   EXPECT_EQ(parser.getArgument(), "1 argument");
 }
+TEST(ParserTest, TestParse) {
+  std::map<std::string, std::string> valid_commands = {{"command1", "arg1"},
+                                                       {"command", "arg2"}};
+  Parser parser("!command11 argument", valid_commands, "!", "1");
+  EXPECT_TRUE(parser.hasCommand());
+  EXPECT_EQ(parser.getCommand(), "command");
+  EXPECT_EQ(parser.getArgument(), "1 argument");
+
+  parser.parse("nothingtofind");
+  EXPECT_FALSE(parser.hasCommand());
+  EXPECT_EQ(parser.getCommand(), "");
+  EXPECT_EQ(parser.getArgument(), "");
+}

@@ -4,9 +4,9 @@
  * @brief Simple console client application
  * @version 0.1
  * @date 2024-05-01
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include <iostream>
 
@@ -28,8 +28,10 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  client.run();
-
+  auto exit_code = client.run();
   std::cout << "\nBye!" << std::endl;
+  if (exit_code != 0) {
+    std::exit(0);
+  }
   return 0;
 }

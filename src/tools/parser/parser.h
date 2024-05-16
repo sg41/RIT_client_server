@@ -39,18 +39,22 @@ class Parser {
 
  public:
   explicit Parser(const std::string& message);
-  Parser(const std::string& message,
-         const std::unordered_set<std::string>& valid_commands,
+  explicit Parser(const std::string& message,
+                  const std::initializer_list<std::string>&& valid_commands,
+                  const std::string& start = "<", const std::string& end = ">");
+  template <typename T>
+  Parser(const std::string& message, const T& valid_commands,
          const std::string& start = "<", const std::string& end = ">");
   template <typename T>
-  Parser(const std::string& message, std::map<std::string, T> valid_commands,
+  Parser(const std::string& message,
+         const std::map<std::string, T>& valid_commands,
          const std::string& start = "<", const std::string& end = ">");
   bool hasCommand() const;
   const std::string& getCommand() const;
   const std::string& getArgument() const;
+  void parse(const std::string& message);
 
  private:
-  void parse(const std::string& message);
   std::string extractTagByMatch(const std::string& message, size_t& offset);
   std::string extractTag(const std::string& message, size_t& offset);
 
@@ -63,7 +67,7 @@ class Parser {
 
 template <typename T>
 Parser::Parser(const std::string& message,
-               std::map<std::string, T> valid_commands,
+               const std::map<std::string, T>& valid_commands,
                const std::string& start, const std::string& end)
     : kTagStart(start), kTagEnd(end) {
   for (auto it = valid_commands.begin(); it != valid_commands.end(); ++it) {
@@ -71,4 +75,13 @@ Parser::Parser(const std::string& message,
   }
   parse(message);
 }
+
+template <typename T>
+Parser::Parser(const std::string& message, const T& valid_commands,
+               const std::string& start, const std::string& end)
+    : kTagStart(start),
+      kTagEnd(end),
+      valid_commands_(valid_commands.begin(), valid_commands.end()) {
+  parse(message);
+};
 #endif  // TOOLS_PARSER_H

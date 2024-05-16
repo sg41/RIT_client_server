@@ -4,17 +4,18 @@
  * @brief Client class declaration
  * @version 0.1
  * @date 2024-05-01
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef CLIENT_CLIENT_H
 #define CLIENT_CLIENT_H
+#include <memory>
 #include <string>
 
-const int kMaxRetries = 3;
-const int kRetryTimeout = 3;
-const int kBufferSize = 1024;
+#include "client_connection.h"
+
+enum class Event { kUserInput, kServerMessage, kNoEvent };
 
 /**
  * @brief The Client class represents a client that connects to a server.
@@ -32,6 +33,7 @@ class Client {
    * @param log Flag indicating whether logging is enabled.
    */
   Client(const std::string& ip, int port, bool log = false);
+
   /**
    * Connects to the server. No retries are done in case of failure.
    *
@@ -41,13 +43,14 @@ class Client {
    */
   bool connectToServer();
   /**
-   * Checks if there is any data available to be read from the socket.
+   * Checks if there is any data available to be read from the socket or other
+   * file descriptor.
    *
    * @return true if there is data available, false otherwise.
    *
    * @throws None
    */
-  bool checkHaveMessage();
+  Event checkHaveEvent();
   /**
    * Sends a message over the socket connection.
    *
@@ -69,20 +72,12 @@ class Client {
    * @throws None
    */
   bool receiveMessage(std::string& message);
-  /**
-   * Try to reconnect to the server up to kMaxRetries times.
-   *
-   * @return true if the reconnection is successful, false otherwise.
-   *
-   * @throws None
-   */
-  bool reconnect();
-  ~Client();
+  void disconnect();
 
  private:
   std::string server_ip_;
   int server_port_;
-  int sockfd_ = -1;
+  std::shared_ptr<ClientConnection> connection_;
   bool log_ = false;
 };
 

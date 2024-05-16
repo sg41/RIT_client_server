@@ -10,6 +10,7 @@
  */
 #ifndef SERVER_SERVER_H
 #define SERVER_SERVER_H
+#include <atomic>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -18,6 +19,7 @@
 #include <vector>
 
 #include "client_handler.h"
+#include "server_connection.h"
 
 /**
  * The Server class represents a TCP/IP server that listens for incoming
@@ -40,6 +42,15 @@
 class Server {
  public:
   explicit Server(int port, bool log = false);
+  /**
+   * Rule of 5 implementation
+   */
+  Server(const Server&) = delete;
+  Server(Server&&) = delete;
+  Server& operator=(const Server&) = delete;
+  Server& operator=(Server&&) = delete;
+  ~Server();
+
   /**
    * Starts the server by creating a socket, binding it to a specific address
    * and port, and listening for incoming connections.
@@ -80,15 +91,14 @@ class Server {
                     const std::string& receiver_id, const std::string& message);
   const std::map<std::string, std::shared_ptr<ClientHandler>>& getClients()
       const;
-  ~Server();
   std::mutex& getServerMutex() { return server_mutex_; }
   bool isLogEnabled() const { return log_; }
   bool isRunning() const { return is_running_; }
 
  private:
-  bool is_running_ = false;
+  std::atomic<bool> is_running_ = false;
   std::mutex server_mutex_;
-  int server_socket_ = -1;
+  std::shared_ptr<ServerConnection> connection_;
   int port_ = 8080;  // Default port
   bool log_ = false;
   std::map<std::string, std::shared_ptr<ClientHandler>>

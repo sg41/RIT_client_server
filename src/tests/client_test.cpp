@@ -59,16 +59,15 @@ TEST_F(ClientTest, TestReceiveMessage) {
 TEST_F(ClientTest, TestReconnect) {
   Client client(kTestServerIP, kTestServerPort);
   ASSERT_TRUE(client.connectToServer());
-  EXPECT_TRUE(client.reconnect());
 }
 
 TEST_F(ClientTest, TestCheckHaveMessage) {
   Client client(kTestServerIP, kTestServerPort);
-  EXPECT_FALSE(client.checkHaveMessage());
+  EXPECT_THROW(client.checkHaveEvent(), std::runtime_error);
   ASSERT_TRUE(client.connectToServer());
-  EXPECT_FALSE(client.checkHaveMessage());
+  EXPECT_TRUE(client.checkHaveEvent() == Event::kNoEvent);
   ASSERT_TRUE(client.sendMessage("Test message"));
   std::this_thread::sleep_for(
       std::chrono::milliseconds(500));  // Wait for server to respond
-  EXPECT_TRUE(client.checkHaveMessage());
+  EXPECT_TRUE(client.checkHaveEvent() == Event::kServerMessage);
 }

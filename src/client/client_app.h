@@ -10,7 +10,7 @@
  */
 #ifndef CLIENT_CLIENT_APP_H
 #define CLIENT_CLIENT_APP_H
-#include <future>
+#include <functional>
 #include <map>
 
 #include "client.h"
@@ -24,9 +24,7 @@
  */
 class ClientApp {
  public:
-  enum class Event { kUserInput, kServerMessage, kNoEvent };
   ClientApp(const std::string& server_ip, int server_port, bool log = false);
-  ~ClientApp() = default;
 
   /**
    * Connects to the server.
@@ -39,11 +37,17 @@ class ClientApp {
   /**
    * Runs the client application loop, handling server messages and user inputs.
    *
-   * @return The error code after running the loop.
+   * @return The error code after running the loop. 0 if no error occurred. 1 if
+   * server disconnected. On receiving non zero error code, caller should use
+   * exit() call to terminate userInput thread.
    *
    * @throws None
    */
   int run();
+  bool talkToServer(std::string& response);
+  void shutdownServer();
+  void performExit();
+  void showHelp();
 
  private:
   /**
@@ -83,18 +87,13 @@ class ClientApp {
    *
    * @throws None
    */
-  bool talkToServer(std::string& response);
-  void shutdownServer();
-  void performExit();
-  void showHelp();
 
  private:
   Client client_;
   std::string message_{};
-  std::future<std::string> input_thread_;
   bool running_ = false;
   // Map of valid commands served by client side
-  std::map<std::string, void (ClientApp::*)()> valid_commands_ = {
+  std::map<std::string, std::function<void(ClientApp*)>> valid_commands_ = {
       {"shutdown", &ClientApp::shutdownServer},
       {"exit", &ClientApp::performExit},
       {"help", &ClientApp::showHelp},
